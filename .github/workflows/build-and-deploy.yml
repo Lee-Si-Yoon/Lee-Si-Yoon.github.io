@@ -32,3 +32,5 @@ jobs:
         with:
           branch: gh-pages
           folder: out
+        permissions:
+          contents: write
