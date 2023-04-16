@@ -10,7 +10,8 @@
     "analyze": "cross-env ANALYZE=true next build",
     "lint": "next lint --fix --dir pages --dir components --dir lib --dir layouts --dir scripts",
     "prepare": "husky install",
-    "export": "next export"
+    "export": "next export",
+    "compose": "node ./scripts/compose.js"
   },
   "dependencies": {
     "@fontsource/inter": "4.5.2",

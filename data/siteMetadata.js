@@ -1,9 +1,9 @@
 const siteMetadata = {
-  title: 'Next.js Starter Blog',
-  author: 'Tails Azimuth',
-  headerTitle: 'TailwindBlog',
-  description: 'A blog created with Next.js and Tailwind.css',
-  language: 'en-us',
+  title: 'SiYoon',
+  author: 'Lee Si Yoon',
+  headerTitle: "SiYoon's Log",
+  description: '',
+  language: 'ko',
   theme: 'system', // system, dark or light
   siteUrl: 'https://Lee-Si-Yoon.github.io',
   siteRepo: 'https://Lee-Si-Yoon.github.io',
@@ -12,11 +12,11 @@ const siteMetadata = {
   socialBanner: '/static/images/twitter-card.png',
   email: 'dlduqehd1@gmail.com',
   github: 'https://github.com/Lee-Si-Yoon',
-  twitter: 'https://twitter.com/Twitter',
-  facebook: 'https://facebook.com',
-  youtube: 'https://youtube.com',
-  linkedin: 'https://www.linkedin.com',
-  locale: 'en-US',
+  // twitter: 'https://twitter.com/Twitter',
+  // facebook: 'https://facebook.com',
+  // youtube: 'https://youtube.com',
+  // linkedin: 'https://www.linkedin.com',
+  locale: 'ko',
   analytics: {
     // If you want to use an analytics provider you have to add it to the
     // content security policy in the `next.config.js` file.
@@ -30,7 +30,7 @@ const siteMetadata = {
   newsletter: {
     // supports mailchimp, buttondown, convertkit, klaviyo, revue, emailoctopus
     // Please add your .env file and modify it according to your selection
-    provider: 'buttondown',
+    // provider: 'buttondown',
   },
   comment: {
     // If you want to use a commenting system other than giscus you have to add it to the

@@ -57,7 +57,7 @@ export default function PostLayout({ frontMatter, authorDetails, next, prev, chi
                   {authorDetails.map((author) => (
                     <li className="flex items-center space-x-2" key={author.name}>
                       {author.avatar && (
-                        <img
+                        <Image
                           src={author.avatar}
                           width="38px"
                           height="38px"
@@ -88,13 +88,13 @@ export default function PostLayout({ frontMatter, authorDetails, next, prev, chi
             <div className="divide-y divide-gray-200 dark:divide-gray-700 xl:col-span-3 xl:row-span-2 xl:pb-0">
               <div className="prose max-w-none pb-8 pt-10 dark:prose-dark">{children}</div>
               <div className="pb-6 pt-6 text-sm text-gray-700 dark:text-gray-300">
-                <Link href={discussUrl(slug)} rel="nofollow">
+                {/* <Link href={discussUrl(slug)} rel="nofollow">
                   {'Discuss on Twitter'}
                 </Link>
-                {` • `}
+                {` • `} */}
                 <Link href={editUrl(fileName)}>{'View on GitHub'}</Link>
               </div>
-              <Comments frontMatter={frontMatter} />
+              {/* <Comments frontMatter={frontMatter} /> */}
             </div>
             <footer>
               <div className="divide-gray-200 text-sm font-medium leading-5 dark:divide-gray-700 xl:col-start-1 xl:row-start-2 xl:divide-y">
