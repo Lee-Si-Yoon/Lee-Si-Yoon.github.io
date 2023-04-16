@@ -1,0 +1,48 @@
+---
+title: Apollo Preflight script
+date: '2023-04-16'
+tags: ['grahpql', 'appollo', 'framework']
+draft: false
+summary: how Appollo preflight scripts solved auth issues
+images: []
+layout: PostSimple
+canonicalUrl:
+authors: ['default']
+---
+
+# Apollo Preflight script
+
+## Context
+
+1. Apollo playground에서 token refresh를 해주지 않아 로그아웃은 아니고 token이 expire 되는 상황 발생
+2. Apollo playground에 preflight script라는 것을 작성해주면 매 GraphQL operation 마다 해당 script가 같이 실행되기에 해결
+
+[Image: context]
+
+## How to Run
+
+[Image: where]
+Apollo playground에 접속해서 사진상 11시반 방향 즈음에 있는 Settings 진입 후 script 추가하면 됩니다. 그전에 api와 apollo 둘다 로그인해야 해당 화면까지 진입할 수 있습니다.
+
+```ts
+const refresh = await explorer.fetch('https://api-to-refresh', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  credentials: 'include',
+})
+```
+
+script editor에 해당 코드 복사 붙여넣기 이후 Save하고
+
+[Image: 스크린샷 2023-04-11 오전 9.35.15.png]
+Settings 패널 하단에 해당 옵션을 켜주면 됩니다.
+
+## Results
+
+Operation 실행 시 preflightWorker가 refresh 요청을 잘 보내준 것을 확인 할 수 있습니다.
+
+[Image: 스크린샷 2023-04-11 오전 9.38.15.png]
+
+[Image: 스크린샷 2023-04-11 오전 9.40.38.png]

@@ -1,0 +1,307 @@
+---
+title: playwright issues
+date: '2023-04-16'
+tags: ['test', 'playwright', 'tips']
+draft: false
+summary: playwright issues and we I moved to cypress
+images: []
+layout: PostSimple
+canonicalUrl:
+authors: ['default']
+---
+
+# Playwright Issues
+
+## #0 - environmental variables
+
+[Environment Variables | Vercel Docs](https://vercel.com/docs/concepts/projects/environment-variables)
+팀 내에서 environmental variables(이하 .env)를 공유하기 위해 vercel에서 project단위와 team단위의 .env를 모두 사용하고 있습니다.
+
+이후는 그 .env를 받아오는 방법입니다
+
+```bash
+yarn global add vercel # vercel cli 설치
+
+vercel login
+
+vercel link
+
+? Set up “~/Documents/GitHub/web”? [Y/n] y
+? Which scope should contain your project? <yourOrg>
+? Link to existing project? [y/N] y
+? What’s the name of your existing project? <yourProject>
+
+# 여기서 마지막 질문인 name 설정시 각 project 단위의 .env를 받을 수 있습니다
+# periflow-serving에 모든 .env를 링크걸어 두었기에 serving에서 모두 받아 사용할 수도 있습니다
+
+vercel env pull
+```
+
+---
+
+## #1 - grep
+
+[Annotations | Playwright](https://playwright.dev/docs/test-annotations#tag-tests)
+[nx-plugins/packages/nx-playwright at main · marksandspencer/nx-plugins...](https://github.com/marksandspencer/nx-plugins/tree/main/packages/nx-playwright#execution-flags)
+
+```ts
+test('show alert @alert', async ({ page }) => {})
+test('show alert @slow', async ({ page }) => {})
+test('show alert @fast', async ({ page }) => {})
+```
+
+```bash
+npx nx e2e serving-e2e --grep="@alert|@fast"
+```
+
+다음과 같이 태그 별로 테스트를 돌릴 수도 있습니다
+
+---
+
+## #2 - pause
+
+[Page | Playwright](https://playwright.dev/docs/api/class-page#page-pause)
+
+```ts
+test('show alert @alert', async ({ page }) => {
+  console.log('press resume')
+  await page.pause()
+})
+```
+
+테스트를 일시정지시킬 수 있습니다. 다만 headed mode 에서만 되니 —debug 옵션을 추가해주어야 합니다
+
+```mdx
+@manual
+Scenario: Web page should explain what this waitlist is about
+When I access "site"
+Then I am able to understand what PSE is
+And I understand what this preview is about
+```
+
+다음 과 같은 manual 테스트 진행시 사용될 예정입니다
+
+### Attempt #1 - 미해결
+
+```ts
+test('show alert @alert', async ({ page }) => {
+  await page.evaluate(async () => {
+    window.confirm('did you see this?')
+  })
+  const dialog = await page.waitForEvent('dialog')
+  await dialog.accept()
+})
+```
+
+js를 흉내내는 evaluate로 confirm을 받아 테스트를 재개해보려고 했지만, playwright가 dialog 이벤트들을 자동으로 dismiss하는 문제가 있습니다.
+
+### Attempt #2 - 미해결
+
+```ts
+test('show alert @alert', async ({ page }) => {
+  async function askQuestion() {
+    const rl = readline.createInterface({ input, output })
+    const answer = await rl.question('did you check?')
+    if (answer) rl.close()
+  }
+  askQuestion()
+})
+```
+
+cli상으로 답을 받아서 테스트를 재개시켜보려고 했지만 readline이 어째선지 값을 계속 받습니다
+
+---
+
+## #3 - selecting `<Select/>` from Ant.design
+
+### Situation
+
+원래는 [Locator | Playwright](https://playwright.dev/docs/api/class-locator#locator-select-option) 을 이용해 select의 자식들을 선택할 수 있어야하지만,
+ant design의 select는 클릭 후 비동기적으로 option들을 dom tree에 추가시키는 형태여서 마땅한 dom selector가 없는 상황
+
+id로 선택하려고 해도 `rc_select_<number>` 형태로 임의의 숫자가 붙이기에 id selector는 안됨
+[Image: 화면 기록 2023-03-27 오전 10.34.30.gif]
+
+### Attempt #1
+
+playwright의 network response를 intercept하는 기능을 사용하여 해당 테스트를 진행하는 동안에만 item 개수를 제한해서 테스트하기
+
+```ts
+const MOCK_DATA = {
+  data: {
+    waitlistConnection: {
+      edges: [
+        {
+          id: 'test-id',
+          firstName: 'test',
+          lastName: 'test',
+          companyName: 'test',
+          emailAddress: 'test',
+          status: 'INVITED',
+          registerDate: new Date(),
+        },
+      ],
+    },
+  },
+}
+
+test.beforeEach(async ({ page, baseURL }) => {
+  await page.goto(`${baseURL}waitlist`)
+
+  await page.route('https://apiToFetch.com', async (route) => {
+    route.fulfill({ json: MOCK_DATA })
+  })
+  await page.waitForResponse('https://apiToFetch.com')
+})
+```
+
+item 개수를 한개로 만들면 새로 생성된 option은 무조건 해당 item의 것임으로 테스트 가능
+
+### Attempt #2
+
+화면을 기준으로 해당 select의 위치와 크기를 이용해서 클릭하기
+
+```ts
+const select = page
+  .locator('.ant-select-selector')
+  .filter({ hasText: /registered/i })
+  .nth(0)
+
+await select.click()
+
+const selectBox = await select.boundingBox()
+
+await page.mouse.click(selectBox.x + selectBox.width / 2, selectBox.y + selectBox.height * 3 + 10)
+```
+
+### Attempt #3
+
+test 1회당 1회 클릭 하는 것을 전제로 waitFor 사용하기
+
+```ts
+const differentOption = page.locator('.ant-select-item-option').nth(0)
+
+await differentOption.waitFor()
+await differentOption.click()
+```
+
+제일 깔끔하지만 click 2회 이상은 안됨, page.close 나 page.reload 필요해짐
+
+---
+
+## #4 webkit login issue
+
+### Situation
+
+safari 로컬과 playwright webkit에서 로그인이 안되고 있습니다
+https://webkit.org/blog/10218/full-third-party-cookie-blocking-and-more/
+[Image: 화면 기록 2023-03-29 오후 3.15.42.gif]
+
+### Solution #1
+
+[Image: 스크린샷 2023-03-29 오후 3.59.32.png]
+해당 방법으로 로컬에서 safari 로그인은 됩니다.
+
+### Attempt #1 - 미해결
+
+https://github.com/microsoft/playwright/issues/12026
+방법 없다
+https://github.com/microsoft/playwright/issues/17368
+현재 사용 중인 playwright 1.29.2 / webkit 1792 → 성공한 버전 playwright 1.17.2 / webkit 1578
+[Image: 스크린샷 2023-03-29 오후 4.14.28.png]버전 호환 안됨
+
+### Attempt #2 - 미해결
+
+최신버전인 1.32.1 테스트 해봤지만 안됨
+
+---
+
+## #5 playwright VS cypress
+
+### Situation
+
+1. playwright에서 #4 webkit login issue 당장 해결 불가능
+2. 데모 시연을 위한 —trace([Trace viewer | Playwright](https://playwright.dev/docs/trace-viewer-intro))가 nx을 위한 [playwright plugin](https://github.com/marksandspencer/nx-plugins/tree/main/packages/nx-playwright) 에서 작동하지 않음
+
+### Pros & Cons - playwright
+
+**TL;DR** - 많은 테스트들을 빠르게 돌리기 좋다, 데모 및 디버깅용으로는 아쉽다
+
+#### Pros
+
+1. [Parallelism and sharding | Playwright](https://playwright.dev/docs/test-parallel) 테스트들을 병렬로 돌려서 많은 테스트를 빨리 끝낼 수 있다
+2. [Test generator | Playwright](https://playwright.dev/docs/codegen-intro) 직접 로컬에서 화면을 띄워서 인터랙션하고 그 결과를 codegen 시킬 수 있다
+3. [Browsers | Playwright](https://playwright.dev/docs/browsers#run-tests-on-different-browsers) 한번에 여러 브라우저들을 테스트할 수 있다
+4. [Emulation | Playwright](https://playwright.dev/docs/emulation) 모바일 환경에서 테스트 할 수도 있다
+
+#### Cons
+
+1. 지금 직면한 #4 webkit login issue을 해결할 방법이 없어보인다
+2. playwright 자체적으로는 문제가 없을 수 있지만, nx와 호환이 잘 안되는 부분들이 있다(공식 플러그인 또한 없다)
+3. 데모 시연을 하기 위해서는 부족한 설정들, 예컨대 [slowmo](https://playwright.dev/docs/debug#headed-mode)를 이용해서 천천히 볼 수 있지만 모든 스텝을 느리게 만들기에 req, res마저 기다려야 한다. 또한 debugger에서 한단계씩 볼순 있지만 뒤돌아가기는 안된다
+4. 2번 장점이었던 test generator는 애초에 TDD로 작성한 화면이 아니라면 크게 도움이 되지 않는다. 아래 사진을 보면 dom selector가 난장판이다
+
+[Image: 스크린샷 2023-03-27 오전 10.09.12.png]
+
+### Pros & Cons - cypress
+
+**TL;DR** - 데모 및 디버깅이 괜찮고 코드도 직관적이다. 다만 기능상 아쉬운 점들이 있다
+
+#### Pros
+
+1. 데모 시연을 위해 더 나은 GUI와 설정들이 있다.
+   1. 단계별 보기
+   2. req, res을 따로 설정하지 않아도 보여주고 거기에 별명을 붙일 수도 있다
+
+[Image: 스크린샷 2023-03-31 오후 12.27.27.png]
+
+```ts
+cy.session(
+  username,
+  () => {
+    cy.request('POST', Cypress.env('API_LOGIN'), {
+      username,
+      password,
+    }).as('currentUser')
+
+    cy.request('POST', Cypress.env('API_AUTH_REFRESH')).as('authRefresh')
+  },
+  {
+    validate: () => {
+      cy.getAllCookies()
+        .should('have.length.above', 0)
+        .then((cookies) => {
+          expect(cookies[0]).to.have.property('name', 'sRefreshToken')
+          expect(cookies[1]).to.have.property('name', 'sAccessToken')
+        })
+    },
+  }
+)
+```
+
+    1. [within | Cypress](https://docs.cypress.io/api/commands/within) 등을 이용하면 debugger에서 실행단계를 더 직관적으로 볼 수 있다
+
+[Image: 스크린샷 2023-03-31 오후 12.45.07.png]
+
+```ts
+cy.get('form').within(() => {
+  getInputByPlaceholer('email').type(Cypress.env('BACKOFFICE_ID'))
+  getInputByPlaceholer('password').type(Cypress.env('BACKOFFICE_PW'))
+  getButtonByName('log in').click()
+})
+```
+
+1. [cypress cloud](https://docs.cypress.io/guides/cloud/introduction)를 사용해서 테스트 결과를 영상으로 남길 수도 있다, cloud를 사용하지 않아도 다른 테스트를 돌리기 전까진 영상을 볼 수 있다. 현재 저장 경로는 dist/cypress/apps/\*
+
+[Image: 스크린샷 2023-03-31 오후 12.49.23.png]
+
+1. [session | Cypress](https://docs.cypress.io/api/commands/session#docusaurus_skipToContent_fallback) 세션을 생성해서 로그인이 필요한 화면의 경우 playwright와 다르게 매번 로그인 request를 보낼 필요가 없다
+
+#### Cons
+
+1. cypress 또한 [playwright webkit](https://docs.cypress.io/guides/guides/launching-browsers#WebKit-Experimental)을 사용하기에 지금 직면한 #4 webkit login issue을 해결할 방법이 없어보인다
+2. [Parallelization | Cypress](https://docs.cypress.io/guides/guides/parallelization) 테스트를 병렬로 돌리기 위해서는 [cypress cloud](https://docs.cypress.io/guides/cloud/introduction)을 사용해야 하고 월 500회 이상부터는 유료다
+3. [Cross Browser Testing | Cypress](https://docs.cypress.io/guides/guides/cross-browser-testing) 한번에 여러 브라우저들을 headed로 돌릴 순 없다. headless또한 [Circle CI orb](https://circleci.com/developer/orbs/orb/circleci/browser-tools#commands-install-browser-tools)을 통해서 세팅 이후에 돌릴 수 있다
+4. [General Questions | Cypress](https://docs.cypress.io/faq/questions/general-questions-faq#Do-you-support-native-mobile-apps) 모바일 환경에서 테스트할 수 없다. 다만 비슷하게 viewport를 줄인 채로는 가능하다
+
+---
