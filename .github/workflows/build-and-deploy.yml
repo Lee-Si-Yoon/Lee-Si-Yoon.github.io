@@ -19,9 +19,21 @@ jobs:
           node-version: 16
           cache: npm
 
-      - name: Install and Build 🔧
+      - name: Cache dependencies
+        id: cache
+        uses: actions/cache@v3
+        with:
+          path: '**/node_modules'
+          key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+        
+      - name: Install
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: yarn install
+
+      - name: Build 🔧
         run: |
-          yarn install
           yarn build
           yarn export
           touch out/.nojekyll
