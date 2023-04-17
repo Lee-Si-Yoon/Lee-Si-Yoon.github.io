@@ -20,6 +20,7 @@ export default function AuthorLayout({ children, frontMatter }) {
               src={avatar}
               alt="avatar"
               width="192px"
+              placeholder="blur"
               height="192px"
               className="h-48 w-48 rounded-full"
             />

@@ -2,6 +2,9 @@ const withBundleAnalyzer = require('@next/bundle-analyzer')({
   enabled: process.env.ANALYZE === 'true',
 })
 
+const withPlugins = require('next-compose-plugins')
+const withExportImages = require('next-export-optimize-images')
+
 // You might need to insert additional domains in script-src if you are using external services
 const ContentSecurityPolicy = `
   default-src 'self';
@@ -52,7 +55,7 @@ const securityHeaders = [
   },
 ]
 
-module.exports = withBundleAnalyzer({
+module.exports = withPlugins([withBundleAnalyzer, withExportImages], {
   reactStrictMode: true,
   pageExtensions: ['js', 'jsx', 'md', 'mdx'],
   eslint: {
@@ -65,10 +68,6 @@ module.exports = withBundleAnalyzer({
         headers: securityHeaders,
       },
     ]
-  },
-  images: {
-    loader: 'akamai',
-    path: '/',
   },
   webpack: (config, { dev, isServer }) => {
     config.module.rules.push({
@@ -89,3 +88,41 @@ module.exports = withBundleAnalyzer({
     return config
   },
 })
+
+// withBundleAnalyzer({
+//   reactStrictMode: true,
+//   pageExtensions: ['js', 'jsx', 'md', 'mdx'],
+//   eslint: {
+//     dirs: ['pages', 'components', 'lib', 'layouts', 'scripts'],
+//   },
+//   async headers() {
+//     return [
+//       {
+//         source: '/(.*)',
+//         headers: securityHeaders,
+//       },
+//     ]
+//   },
+//   images: {
+//     loader: 'akamai',
+//     path: '/',
+//   },
+//   webpack: (config, { dev, isServer }) => {
+//     config.module.rules.push({
+//       test: /\.svg$/,
+//       use: ['@svgr/webpack'],
+//     })
+
+//     if (!dev && !isServer) {
+//       // Replace React with Preact only in client production build
+//       Object.assign(config.resolve.alias, {
+//         'react/jsx-runtime.js': 'preact/compat/jsx-runtime',
+//         react: 'preact/compat',
+//         'react-dom/test-utils': 'preact/test-utils',
+//         'react-dom': 'preact/compat',
+//       })
+//     }
+
+//     return config
+//   },
+// })
