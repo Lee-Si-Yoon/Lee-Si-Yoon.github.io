@@ -48,8 +48,7 @@ export default function PostLayout({ frontMatter, authorDetails, next, prev, chi
           </header>
           <div
             className="divide-y divide-gray-200 pb-8 dark:divide-gray-700 xl:grid xl:grid-cols-4 xl:gap-x-6 xl:divide-y-0"
-            style={{ gridTemplateRows: 'auto 1fr' }}
-          >
+            style={{ gridTemplateRows: 'auto 1fr' }}>
             <dl className="pb-10 pt-6 xl:border-b xl:border-gray-200 xl:pt-11 xl:dark:border-gray-700">
               <dt className="sr-only">Authors</dt>
               <dd>
@@ -74,8 +73,7 @@ export default function PostLayout({ frontMatter, authorDetails, next, prev, chi
                           {author.twitter && (
                             <Link
                               href={author.twitter}
-                              className="text-primary-500 hover:text-primary-600 dark:hover:text-primary-400"
-                            >
+                              className="text-primary-500 hover:text-primary-600 dark:hover:text-primary-400">
                               {author.twitter.replace('https://twitter.com/', '@')}
                             </Link>
                           )}
@@ -139,8 +137,7 @@ export default function PostLayout({ frontMatter, authorDetails, next, prev, chi
               <div className="pt-4 xl:pt-8">
                 <Link
                   href="/blog"
-                  className="text-primary-500 hover:text-primary-600 dark:hover:text-primary-400"
-                >
+                  className="text-primary-500 hover:text-primary-600 dark:hover:text-primary-400">
                   &larr; Back to the blog
                 </Link>
               </div>
