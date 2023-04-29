@@ -1,6 +1,7 @@
 const withBundleAnalyzer = require('@next/bundle-analyzer')({
   enabled: process.env.ANALYZE === 'true',
 })
+const withExportImages = require('next-export-optimize-images')
 
 const withPlugins = require('next-compose-plugins')
 
@@ -54,7 +55,7 @@ const securityHeaders = [
   },
 ]
 
-module.exports = withPlugins([withBundleAnalyzer], {
+module.exports = withPlugins([withBundleAnalyzer, withExportImages], {
   reactStrictMode: true,
   pageExtensions: ['js', 'jsx', 'md', 'mdx'],
   eslint: {
@@ -70,7 +71,7 @@ module.exports = withPlugins([withBundleAnalyzer], {
   },
   images: {
     loader: 'akamai',
-    path: '',
+    path: '.',
   },
   webpack: (config, { dev, isServer }) => {
     config.module.rules.push({

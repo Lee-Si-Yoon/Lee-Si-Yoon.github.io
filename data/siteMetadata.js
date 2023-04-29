@@ -1,7 +1,7 @@
 const siteMetadata = {
   title: 'SiYoon',
   author: 'Lee Si Yoon',
-  headerTitle: "SiYoon's Log",
+  headerTitle: 'lee-si-yoon.github.io',
   description: '',
   language: 'ko',
   theme: 'system', // system, dark or light

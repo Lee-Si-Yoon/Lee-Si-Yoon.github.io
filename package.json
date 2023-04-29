@@ -5,7 +5,7 @@
   "scripts": {
     "start": "cross-env SOCKET=true node ./scripts/next-remote-watch.js ./data",
     "dev": "next dev",
-    "build": "next build && node ./scripts/generate-sitemap",
+    "build": "next build && next-export-optimize-images && node ./scripts/generate-sitemap",
     "serve": "next start",
     "analyze": "cross-env ANALYZE=true next build",
     "lint": "next lint --fix --dir pages --dir components --dir lib --dir layouts --dir scripts",
@@ -59,6 +59,7 @@
     "inquirer": "^8.1.1",
     "lint-staged": "^11.0.0",
     "next-compose-plugins": "^2.2.1",
+    "next-export-optimize-images": "^2.0.1",
     "next-remote-watch": "^1.0.0",
     "prettier": "^2.5.1",
     "prettier-plugin-tailwindcss": "^0.1.4",
