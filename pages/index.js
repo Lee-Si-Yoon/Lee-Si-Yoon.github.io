@@ -130,11 +130,11 @@ export default function Home({ posts }) {
                 </tr>
                 <tr>
                   <td>역할</td>
-                  <td className="text-stone-500">1인 개발, 기획, 웹디자인(Figma)</td>
+                  <td className="text-stone-500">1인 개발, 기획, 디자인</td>
                 </tr>
               </tbody>
             </table>
-            <Link href="https://github.com/Lee-Si-Yoon/ziphockey-2p/tree/main">
+            <Link href="https://github.com/Lee-Si-Yoon/ziphockey-2p/tree/main" className="inline">
               <button className={`block ${buttonStyle}`}>자세히 보기</button>
             </Link>
           </li>

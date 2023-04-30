@@ -21,16 +21,22 @@ export async function getStaticPaths() {
 export async function getStaticProps({ params }) {
   const allPosts = await getAllFilesFrontMatter('career')
   const post = await getFileBySlug('career', params.slug.join('/'))
+  const authorList = post.frontMatter.authors || ['default']
+  const authorPromise = authorList.map(async (author) => {
+    const authorResults = await getFileBySlug('authors', [author])
+    return authorResults.frontMatter
+  })
+  const authorDetails = await Promise.all(authorPromise)
   // rss
   if (allPosts.length > 0) {
     const rss = generateRss(allPosts)
     fs.writeFileSync('./public/feed.xml', rss)
   }
 
-  return { props: { post } }
+  return { props: { post, authorDetails } }
 }
 
-export default function Career({ post }) {
+export default function Career({ post, authorDetails }) {
   const { mdxSource, toc, frontMatter } = post
 
   return (
@@ -41,7 +47,7 @@ export default function Career({ post }) {
           toc={toc}
           mdxSource={mdxSource}
           frontMatter={frontMatter}
-          // authorDetails={authorDetails}
+          authorDetails={authorDetails}
           // prev={prev}
           // next={next}
         />
