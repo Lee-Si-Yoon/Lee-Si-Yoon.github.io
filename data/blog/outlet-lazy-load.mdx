@@ -1,0 +1,59 @@
+---
+title: Outlet & Lazy load
+date: '2023-04-30'
+tags: ['optimization']
+draft: false
+summary:
+images: []
+layout: PostSimple
+canonicalUrl:
+authors: ['default']
+---
+
+## Context
+
+![outlet-1](/static/images/outlet-lazy-load/outlet-lazy-load-1.png)
+user-setting/account → user-setting/profile 으로 단순히 이동하는데만 graphQL **request가 10건**
+
+- `UserProfile` 2건, `UserSettingProfile` 2건, `OrgProjectList` 2건 / 나머지 4건은 preflight라 무시 가능
+- `UserSettingProfile` 은 periflow/pages/UserSettingProfile 페이지 자체에서 요청
+- `OrgProjectList` 은 periflow/pages/wrapper 에서 요청
+- `UserProfile` 은 lib/shell/right-option-group 에서 요청
+
+원인을 찾아보니
+
+![outlet-2](/static/images/outlet-lazy-load/outlet-lazy-load-2.png)
+
+SidebarLayout 자체가 3번 렌더링 되고 있었습니다. 첫번째 렌더링 → Hooks changed → Props changed
+
+하지만 SidebarLayout가 한번 렌더링되면 이상적으로는 `UserSettingProfile` 만 1회 요청할겁니다
+
+## Solved
+
+![outlet-3](/static/images/outlet-lazy-load/outlet-lazy-load-3.png)
+Outlet을 통해서 Nested UI를 구성했습니다. 그랬더니
+
+![outlet-4](/static/images/outlet-lazy-load/outlet-lazy-load-4.png)
+SidebarLayout은 1회 렌더링되고
+
+![outlet-5](/static/images/outlet-lazy-load/outlet-lazy-load-5.png)
+user-setting/account → user-setting/profile 으로 이동하는데 graphQL **request가 4건으로 줄었습니다**
+
+- `UserSettingProfile` 1건, `OrgProjectList` 1건 / 나머지 2건은 preflight
+
+예상과 다르게, `OrgProjectList` 가 호출된 이유를 찾아보니, Sidebar에서 useMatch를 이용해서 active tab을 설정하고 이를 prop을 통해서 전달하다보니, prop change가 발생했고 리렌더링이 일어나는 것이었습니다.
+
+---
+
+## Lazy load
+
+| BEFORE                                                              | AFTER                                                               |
+| ------------------------------------------------------------------- | ------------------------------------------------------------------- |
+| ![outlet-6](/static/images/outlet-lazy-load/outlet-lazy-load-6.png) | ![outlet-7](/static/images/outlet-lazy-load/outlet-lazy-load-7.png) |
+
+처음 페이지 로드시 받아야할 bundle이 압축(Gzip) 기준,<br/> <mark>892.04KB → 815.15KB(-8.62%)</mark> 감소했습니다.
+Lighthouse의 FCP도 **1.5초 → 1.3초**으로 빨라졌습니다
+초기 로드시 필요없고 크기가 큰 library들(e.g. visx)가 다른 chunk로 분할되어 차트가 있는 페이지에서 로드됩니다
+
+![outlet-8](/static/images/outlet-lazy-load/outlet-lazy-load-8.png)
+page 로드시 flicker현상이 있어서 [loadable](https://loadable-components.com/docs/delay/)을 참고하여 100ms delay를 추가했습니다

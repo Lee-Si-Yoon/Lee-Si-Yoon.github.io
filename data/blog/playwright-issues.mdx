@@ -164,9 +164,8 @@ cy.get('form').within(() => {
 
 #### Cons
 
-1. cypress 또한 [playwright webkit](https://docs.cypress.io/guides/guides/launching-browsers#WebKit-Experimental)을 사용하기에 지금 직면한 #4 webkit login issue을 해결할 방법이 없어보인다
-2. [Parallelization | Cypress](https://docs.cypress.io/guides/guides/parallelization) 테스트를 병렬로 돌리기 위해서는 [cypress cloud](https://docs.cypress.io/guides/cloud/introduction)을 사용해야 하고 월 500회 이상부터는 유료다
-3. [Cross Browser Testing | Cypress](https://docs.cypress.io/guides/guides/cross-browser-testing) 한번에 여러 브라우저들을 headed로 돌릴 순 없다. headless또한 [Circle CI orb](https://circleci.com/developer/orbs/orb/circleci/browser-tools#commands-install-browser-tools)을 통해서 세팅 이후에 돌릴 수 있다
-4. [General Questions | Cypress](https://docs.cypress.io/faq/questions/general-questions-faq#Do-you-support-native-mobile-apps) 모바일 환경에서 테스트할 수 없다. 다만 비슷하게 viewport를 줄인 채로는 가능하다
+1. [Parallelization | Cypress](https://docs.cypress.io/guides/guides/parallelization) 테스트를 병렬로 돌리기 위해서는 [cypress cloud](https://docs.cypress.io/guides/cloud/introduction)을 사용해야 하고 월 500회 이상부터는 유료다
+2. [Cross Browser Testing | Cypress](https://docs.cypress.io/guides/guides/cross-browser-testing) 한번에 여러 브라우저들을 headed로 돌릴 순 없다. headless또한 [Circle CI orb](https://circleci.com/developer/orbs/orb/circleci/browser-tools#commands-install-browser-tools)을 통해서 세팅 이후에 돌릴 수 있다
+3. [General Questions | Cypress](https://docs.cypress.io/faq/questions/general-questions-faq#Do-you-support-native-mobile-apps) 모바일 환경에서 테스트할 수 없다. 다만 비슷하게 viewport를 줄인 채로는 가능하다
 
 ---
