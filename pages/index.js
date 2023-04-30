@@ -20,6 +20,8 @@ const discList = 'pl-1 list-inside list-disc marker:text-xl marker:text-stone-20
 const discPosition = 'before:mr-[-0.5rem] mb-1 lg:mb-2'
 const strongStyle = 'font-semibold text-sky-500'
 const subTitle = 'text-md font-bold text-stone-700 lg:text-xl'
+const buttonStyle =
+  'rounded-xl bg-stone-100 px-3 py-2 text-xs font-bold text-stone-700 hover:bg-stone-200'
 
 export default function Home({ posts }) {
   const { name, avatar, occupation, company, email, twitter, linkedin, github } = posts
@@ -81,9 +83,7 @@ export default function Home({ posts }) {
             <h3 className="mb-1 text-3xl font-bold text-stone-800">friendli AI</h3>
             <p className="mb-2 text-stone-700">프론트엔드 엔지니어</p>
             <span className="mb-3 block text-sm font-bold text-stone-700">2023.01 ~ 현재</span>
-            <button className="block rounded-xl bg-stone-100 px-3 py-2 text-xs font-bold text-stone-700 hover:bg-stone-200">
-              자세히 보기
-            </button>
+            <button className={`block ${buttonStyle}`}>자세히 보기</button>
           </li>
         </ul>
       </section>
@@ -107,9 +107,7 @@ export default function Home({ posts }) {
                 <td className="text-stone-500">1인 개발, 웹 디자인</td>
               </tr>
             </table>
-            <button className="block rounded-xl bg-stone-100 px-3 py-2 text-xs font-bold text-stone-700 hover:bg-stone-200">
-              자세히 보기
-            </button>
+            <button className={`block ${buttonStyle}`}>자세히 보기</button>
           </li>
           <li>
             <h3 className="mb-1 text-2xl font-bold text-stone-800">Migration Stories</h3>
@@ -128,9 +126,7 @@ export default function Home({ posts }) {
                 <td className="text-stone-500">1인 개발, 웹 디자인</td>
               </tr>
             </table>
-            <button className="block rounded-xl bg-stone-100 px-3 py-2 text-xs font-bold text-stone-700 hover:bg-stone-200">
-              자세히 보기
-            </button>
+            <button className={`block ${buttonStyle}`}>자세히 보기</button>
           </li>
         </ul>
       </section>
@@ -143,12 +139,8 @@ export default function Home({ posts }) {
               <wb /> contributor로 활동하고 있습니다
             </p>
             <div className="flex gap-3">
-              <button className="rounded-xl bg-stone-100 px-3 py-2 text-xs font-bold text-stone-700 hover:bg-stone-200">
-                Dotting Github
-              </button>
-              <button className="rounded-xl bg-stone-100 px-3 py-2 text-xs font-bold text-stone-700 hover:bg-stone-200">
-                기여한 PR 목록
-              </button>
+              <button className={`${buttonStyle}`}>Dotting Github</button>
+              <button className={`${buttonStyle}`}>기여한 PR 목록</button>
             </div>
           </li>
         </ul>

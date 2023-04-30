@@ -19,7 +19,7 @@ const LayoutWrapper = ({ children }) => {
               </h1>
             </div>
           </Link>
-          <div className="flex items-center">
+          <div className="flex items-center gap-4">
             {headerNavLinks.map((link) => (
               <Link
                 key={link.title}
