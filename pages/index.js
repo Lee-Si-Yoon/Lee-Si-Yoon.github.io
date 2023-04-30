@@ -94,45 +94,49 @@ export default function Home({ posts }) {
         <ul className="mt-4">
           <li className="mb-6">
             <h3 className="mb-1 text-2xl font-bold text-stone-800">Migration Stories</h3>
-            <p className="mb-3 text-sm font-light text-stone-400">duration</p>
+            <p className="mb-3 text-sm font-light text-stone-400">22.12</p>
             <table className="mb-3 table-auto text-stone-400">
               <tbody>
                 <tr>
                   <td className="pr-6">간단 소개</td>
-                  <td className="text-stone-500">123</td>
+                  <td className="text-stone-500">미술 전시를 위한 웹사이트</td>
                 </tr>
                 <tr>
                   <td>사용 기술</td>
-                  <td className="text-stone-500">React, three.js</td>
+                  <td className="text-stone-500">React, three.js, styled-components</td>
                 </tr>
                 <tr>
                   <td>역할</td>
-                  <td className="text-stone-500">1인 개발, 웹 디자인</td>
+                  <td className="text-stone-500">1인 개발, 웹 디자인(Figma)</td>
                 </tr>
               </tbody>
             </table>
-            <button className={`block ${buttonStyle}`}>자세히 보기</button>
+            <Link href="https://github.com/Lee-Si-Yoon/2022-migration-stories">
+              <button className={`block ${buttonStyle}`}>자세히 보기</button>
+            </Link>
           </li>
           <li>
-            <h3 className="mb-1 text-2xl font-bold text-stone-800">Migration Stories</h3>
-            <p className="mb-3 text-sm font-light text-stone-400">duration</p>
+            <h3 className="mb-1 text-2xl font-bold text-stone-800">Ziphockey</h3>
+            <p className="mb-3 text-sm font-light text-stone-400">22.11 ~ 22.12</p>
             <table className="mb-3 table-auto text-stone-400">
               <tbody>
                 <tr>
                   <td className="pr-6">간단 소개</td>
-                  <td className="text-stone-500">123</td>
+                  <td className="text-stone-500">멀티플레이어 에어하키 모바일 웹게임</td>
                 </tr>
                 <tr>
                   <td>사용 기술</td>
-                  <td className="text-stone-500">React, three.js</td>
+                  <td className="text-stone-500">Node.js, Socket.io, 웹 디자인(Figma)</td>
                 </tr>
                 <tr>
                   <td>역할</td>
-                  <td className="text-stone-500">1인 개발, 웹 디자인</td>
+                  <td className="text-stone-500">1인 개발, 기획, 웹디자인(Figma)</td>
                 </tr>
               </tbody>
             </table>
-            <button className={`block ${buttonStyle}`}>자세히 보기</button>
+            <Link href="https://github.com/Lee-Si-Yoon/ziphockey-2p/tree/main">
+              <button className={`block ${buttonStyle}`}>자세히 보기</button>
+            </Link>
           </li>
         </ul>
       </section>
@@ -145,8 +149,12 @@ export default function Home({ posts }) {
               <wb /> contributor로 활동하고 있습니다
             </p>
             <div className="flex gap-3">
-              <button className={`${buttonStyle}`}>Dotting Github</button>
-              <button className={`${buttonStyle}`}>기여한 PR 목록</button>
+              <Link href="https://github.com/hunkim98/dotting">
+                <button className={`${buttonStyle}`}>Dotting Github</button>
+              </Link>
+              <Link href="https://github.com/hunkim98/dotting/pulls?q=is%3Apr+author%3ALee-Si-Yoon+is%3Aclosed">
+                <button className={`${buttonStyle}`}>기여한 PR 목록</button>
+              </Link>
             </div>
           </li>
         </ul>
@@ -159,7 +167,7 @@ export default function Home({ posts }) {
             <p className="mb-4 text-sm text-stone-600">서양화과 & 시각디자인과 복수전공</p>
             <div>
               <p className="text-sm text-stone-600">
-                <strong className="mr-1 font-bold">총학점평균</strong> 3.7/4.30
+                <strong className="mr-1 font-bold">총학점평균</strong> 3.69/4.30
               </p>
             </div>
           </li>
