@@ -20,6 +20,12 @@ export default function App({ Component, pageProps }) {
     <ThemeProvider attribute="class" defaultTheme={siteMetadata.theme}>
       <Head>
         <meta content="width=device-width, initial-scale=1" name="viewport" />
+        <link
+          rel="stylesheet"
+          as="style"
+          crossOrigin
+          href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.6/dist/web/variable/pretendardvariable-dynamic-subset.css"
+        />
       </Head>
       {isDevelopment && isSocket && <ClientReload />}
       <Analytics />

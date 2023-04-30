@@ -25,11 +25,11 @@ module.exports = {
         14: '3.5rem',
       },
       fontFamily: {
-        sans: ['InterVariable', ...defaultTheme.fontFamily.sans],
+        sans: ['Pretendard', ...defaultTheme.fontFamily.sans],
       },
       colors: {
-        primary: colors.teal,
-        gray: colors.neutral,
+        primary: colors.sky,
+        gray: colors.stone,
       },
       typography: (theme) => ({
         DEFAULT: {
@@ -166,3 +166,6 @@ module.exports = {
   },
   plugins: [require('@tailwindcss/forms'), require('@tailwindcss/typography')],
 }
+
+// 러버덕 디버깅
+// KISS Keep it stupid

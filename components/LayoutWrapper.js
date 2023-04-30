@@ -10,42 +10,29 @@ import ThemeSwitch from './ThemeSwitch'
 const LayoutWrapper = ({ children }) => {
   return (
     <SectionContainer>
-      <div className="flex h-screen flex-col justify-between">
-        <header className="flex items-center justify-between py-10">
-          <div>
-            <Link href="/" aria-label={siteMetadata.headerTitle}>
-              <div className="flex items-center justify-between">
-                {/* <div className="mr-3">
-                  <Logo />
-                </div> */}
-                {typeof siteMetadata.headerTitle === 'string' ? (
-                  <div className="hidden h-6 text-2xl font-semibold sm:block">
-                    {siteMetadata.headerTitle}
-                  </div>
-                ) : (
-                  siteMetadata.headerTitle
-                )}
-              </div>
-            </Link>
-          </div>
-          <div className="flex items-center text-base leading-5">
-            <div className="hidden sm:block">
-              {headerNavLinks.map((link) => (
-                <Link
-                  key={link.title}
-                  href={link.href}
-                  className="p-1 font-medium text-gray-900 dark:text-gray-100 sm:p-4">
-                  {link.title}
-                </Link>
-              ))}
+      <div className="flex flex-col justify-between">
+        <header className="flex items-center justify-between pt-4 lg:pt-8">
+          <Link href="/" aria-label={siteMetadata.headerTitle}>
+            <div className="flex items-center justify-between">
+              <h1 className="text-2xl font-semibold text-sky-500 hover:text-sky-600 hover:transition-colors sm:text-2xl">
+                {siteMetadata.headerTitle}
+              </h1>
             </div>
-            <ThemeSwitch />
-            <MobileNav />
+          </Link>
+          <div className="flex items-center">
+            {headerNavLinks.map((link) => (
+              <Link
+                key={link.title}
+                href={link.href}
+                className="text-xl font-medium text-stone-500 hover:text-stone-700 lg:text-lg">
+                {link.title}
+              </Link>
+            ))}
           </div>
         </header>
         <main className="mb-auto">{children}</main>
-        <Footer />
       </div>
+      <Footer />
     </SectionContainer>
   )
 }
