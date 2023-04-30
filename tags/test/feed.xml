@@ -7,9 +7,19 @@
       <language>ko</language>
       <managingEditor>dlduqehd1@gmail.com (Lee Si Yoon)</managingEditor>
       <webMaster>dlduqehd1@gmail.com (Lee Si Yoon)</webMaster>
-      <lastBuildDate>Sun, 16 Apr 2023 00:00:00 GMT</lastBuildDate>
+      <lastBuildDate>Sun, 30 Apr 2023 00:00:00 GMT</lastBuildDate>
       <atom:link href="https://Lee-Si-Yoon.github.io/tags/test/feed.xml" rel="self" type="application/rss+xml"/>
       
+  <item>
+    <guid>https://Lee-Si-Yoon.github.io/blog/playwright-issues</guid>
+    <title>Playwright issues</title>
+    <link>https://Lee-Si-Yoon.github.io/blog/playwright-issues</link>
+    <description>playwright issues and why we moved to cypress</description>
+    <pubDate>Sun, 30 Apr 2023 00:00:00 GMT</pubDate>
+    <author>dlduqehd1@gmail.com (Lee Si Yoon)</author>
+    <category>playwright</category><category>cypress</category><category>test</category>
+  </item>
+
   <item>
     <guid>https://Lee-Si-Yoon.github.io/blog/cypress-tips</guid>
     <title>Cypress Tips</title>
@@ -21,9 +31,9 @@
   </item>
 
   <item>
-    <guid>https://Lee-Si-Yoon.github.io/blog/playwright-issues</guid>
-    <title>playwright issues</title>
-    <link>https://Lee-Si-Yoon.github.io/blog/playwright-issues</link>
+    <guid>https://Lee-Si-Yoon.github.io/blog/playwright-tips</guid>
+    <title>Playwright tips</title>
+    <link>https://Lee-Si-Yoon.github.io/blog/playwright-tips</link>
     <description>playwright issues and we I moved to cypress</description>
     <pubDate>Sun, 16 Apr 2023 00:00:00 GMT</pubDate>
     <author>dlduqehd1@gmail.com (Lee Si Yoon)</author>

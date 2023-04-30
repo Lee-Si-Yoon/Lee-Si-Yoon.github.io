@@ -9,6 +9,10 @@
   </url>
 
   <url>
+    <loc>https://Lee-Si-Yoon.github.io/career</loc>
+  </url>
+
+  <url>
     <loc>https://Lee-Si-Yoon.github.io</loc>
   </url>
 
@@ -18,10 +22,6 @@
 
   <url>
     <loc>https://Lee-Si-Yoon.github.io/tags</loc>
-  </url>
-
-  <url>
-    <loc>https://Lee-Si-Yoon.github.io/blog/-html-tags</loc>
   </url>
 
   <url>
@@ -37,7 +37,15 @@
   </url>
 
   <url>
+    <loc>https://Lee-Si-Yoon.github.io/blog/outlet-lazy-load</loc>
+  </url>
+
+  <url>
     <loc>https://Lee-Si-Yoon.github.io/blog/playwright-issues</loc>
+  </url>
+
+  <url>
+    <loc>https://Lee-Si-Yoon.github.io/blog/playwright-tips</loc>
   </url>
 
   <url>
@@ -61,11 +69,11 @@
   </url>
 
   <url>
-    <loc>https://Lee-Si-Yoon.github.io/tags/html</loc>
+    <loc>https://Lee-Si-Yoon.github.io/tags/links</loc>
   </url>
 
   <url>
-    <loc>https://Lee-Si-Yoon.github.io/tags/links</loc>
+    <loc>https://Lee-Si-Yoon.github.io/tags/optimization</loc>
   </url>
 
   <url>
