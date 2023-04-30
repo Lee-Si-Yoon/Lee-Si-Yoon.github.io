@@ -1,0 +1,95 @@
+---
+title: Playwright tips
+date: '2023-04-16'
+tags: ['test', 'playwright', 'tips']
+draft: false
+summary: playwright issues and we I moved to cypress
+images: []
+layout: PostSimple
+canonicalUrl:
+authors: ['default']
+---
+
+## #0 - environmental variables
+
+[Environment Variables | Vercel Docs](https://vercel.com/docs/concepts/projects/environment-variables)
+팀 내에서 environmental variables(이하 .env)를 공유하기 위해 vercel에서 project단위와 team단위의 .env를 모두 사용하고 있습니다.
+
+이후는 그 .env를 받아오는 방법입니다
+
+```bash
+yarn global add vercel # vercel cli 설치
+
+vercel login
+
+vercel link
+
+? Set up “~/Documents/GitHub/web”? [Y/n] y
+? Which scope should contain your project? <yourOrg>
+? Link to existing project? [y/N] y
+? What’s the name of your existing project? <yourProject>
+
+# 여기서 마지막 질문인 name 설정시 각 project 단위의 .env를 받을 수 있습니다
+# periflow-serving에 모든 .env를 링크걸어 두었기에 serving에서 모두 받아 사용할 수도 있습니다
+
+vercel env pull
+```
+
+---
+
+## #1 - grep
+
+[Annotations | Playwright](https://playwright.dev/docs/test-annotations#tag-tests)
+
+[nx-cypress-grep](https://github.com/marksandspencer/nx-plugins/tree/main/packages/nx-playwright#execution-flags)
+
+```ts
+test('show alert @alert', async ({ page }) => {})
+test('show alert @slow', async ({ page }) => {})
+test('show alert @fast', async ({ page }) => {})
+```
+
+```bash
+npx nx e2e serving-e2e --grep="@alert|@fast"
+```
+
+다음과 같이 태그 별로 테스트를 돌릴 수도 있습니다
+
+---
+
+## #2 - pause
+
+[Page | Playwright](https://playwright.dev/docs/api/class-page#page-pause)
+
+```ts
+test('show alert @alert', async ({ page }) => {
+  console.log('press resume')
+  await page.pause()
+})
+```
+
+테스트를 일시정지시킬 수 있습니다. 다만 headed mode 에서만 되니 —debug 옵션을 추가해주어야 합니다
+
+```mdx
+@manual
+Scenario: Web page should explain what this waitlist is about
+When I access "site"
+Then I am able to understand what PSE is
+And I understand what this preview is about
+```
+
+다음 과 같은 manual 테스트 진행시 사용될 예정입니다
+
+### Attempt #1 - 미해결
+
+```ts
+test('show alert @alert', async ({ page }) => {
+  await page.evaluate(async () => {
+    window.confirm('did you see this?')
+  })
+  const dialog = await page.waitForEvent('dialog')
+  await dialog.accept()
+})
+```
+
+js를 흉내내는 evaluate로 confirm을 받아 테스트를 재개해보려고 했지만, playwright가 dialog 이벤트들을 자동으로 dismiss하는 문제가 있습니다.
