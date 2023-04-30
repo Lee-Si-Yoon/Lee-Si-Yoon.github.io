@@ -10,7 +10,7 @@ import NewsletterForm from '@/components/NewsletterForm'
 const MAX_DISPLAY = 6
 
 export async function getStaticProps() {
-  const posts = await getAllFilesFrontMatter('authors')
+  const posts = await getAllFilesFrontMatter('career')
 
   return { props: { posts } }
 }
@@ -83,7 +83,9 @@ export default function Home({ posts }) {
             <h3 className="mb-1 text-3xl font-bold text-stone-800">friendli AI</h3>
             <p className="mb-2 text-stone-700">프론트엔드 엔지니어</p>
             <span className="mb-3 block text-sm font-bold text-stone-700">2023.01 ~ 현재</span>
-            <button className={`block ${buttonStyle}`}>자세히 보기</button>
+            <Link href="/career/friendliai">
+              <button className={`block ${buttonStyle}`}>자세히 보기 </button>
+            </Link>
           </li>
         </ul>
       </section>
@@ -94,18 +96,20 @@ export default function Home({ posts }) {
             <h3 className="mb-1 text-2xl font-bold text-stone-800">Migration Stories</h3>
             <p className="mb-3 text-sm font-light text-stone-400">duration</p>
             <table className="mb-3 table-auto text-stone-400">
-              <tr>
-                <td className="pr-6">간단 소개</td>
-                <td className="text-stone-500">123</td>
-              </tr>
-              <tr>
-                <td>사용 기술</td>
-                <td className="text-stone-500">React, three.js</td>
-              </tr>
-              <tr>
-                <td>역할</td>
-                <td className="text-stone-500">1인 개발, 웹 디자인</td>
-              </tr>
+              <tbody>
+                <tr>
+                  <td className="pr-6">간단 소개</td>
+                  <td className="text-stone-500">123</td>
+                </tr>
+                <tr>
+                  <td>사용 기술</td>
+                  <td className="text-stone-500">React, three.js</td>
+                </tr>
+                <tr>
+                  <td>역할</td>
+                  <td className="text-stone-500">1인 개발, 웹 디자인</td>
+                </tr>
+              </tbody>
             </table>
             <button className={`block ${buttonStyle}`}>자세히 보기</button>
           </li>
@@ -113,18 +117,20 @@ export default function Home({ posts }) {
             <h3 className="mb-1 text-2xl font-bold text-stone-800">Migration Stories</h3>
             <p className="mb-3 text-sm font-light text-stone-400">duration</p>
             <table className="mb-3 table-auto text-stone-400">
-              <tr>
-                <td className="pr-6">간단 소개</td>
-                <td className="text-stone-500">123</td>
-              </tr>
-              <tr>
-                <td>사용 기술</td>
-                <td className="text-stone-500">React, three.js</td>
-              </tr>
-              <tr>
-                <td>역할</td>
-                <td className="text-stone-500">1인 개발, 웹 디자인</td>
-              </tr>
+              <tbody>
+                <tr>
+                  <td className="pr-6">간단 소개</td>
+                  <td className="text-stone-500">123</td>
+                </tr>
+                <tr>
+                  <td>사용 기술</td>
+                  <td className="text-stone-500">React, three.js</td>
+                </tr>
+                <tr>
+                  <td>역할</td>
+                  <td className="text-stone-500">1인 개발, 웹 디자인</td>
+                </tr>
+              </tbody>
             </table>
             <button className={`block ${buttonStyle}`}>자세히 보기</button>
           </li>
