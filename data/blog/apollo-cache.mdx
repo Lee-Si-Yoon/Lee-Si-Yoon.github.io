@@ -1,0 +1,404 @@
+---
+title: Apollo Cache
+date: '2023-05-10'
+tags: ['apollo', 'graphql', 'cache', tip']
+draft: false
+summary: apollo cache의 mechanism과 어떻게 관리하는지
+images: []
+layout: PostSimple
+canonicalUrl:
+authors: ['default']
+---
+
+# QA
+
+**Q. 언제 신경 써야 할까요**
+
+→ query만 할 경우에는 id만 확인하고, debugger에 warning이 뜰때까지는 신경안써도 될 것 같습니다. 다만 mutation할때 CRUD중 CD할때 cache를 업데이트 하는 것이 좋습니다
+→ 또한 mutation시 update될 모든 field를 반환하도록 하는 것을 잊지 마세요
+
+**Q. page에 같은 path를 가진 query들 뿐인데 왜 cache에서 읽어오지 않고 network request를 보내는 건가요**
+
+→ path에 변수가 있을 경우 같은 path로 취급하지 않기에 일단 network request를 보내보고, 나중에 object identifier를 통해서 다음 fetch때 완전히 같은 정보를 받아온다면 그때는 request를 보내지 않을 겁니다
+→ 만약 이전 page에서 이미 필요한 정보들을 받았다면 그땐 query문을 작성하는게 아니라 [Cache redirect](https://www.apollographql.com/docs/react/caching/advanced-topics/#cache-redirects)를 통해서 cache에서 읽어오거나 fetchPolicies를 cache-only로 설정해볼 수 있습니다
+
+**Q. page에 진입할 때 정보들이 이미 cache되어 있어서 새로운 정보를 못받아오면 어떡하나요**
+
+→ db에 업데이트가 있었으면 Apollo client가 새로운 정보를 받아오고 자동으로 re-render까지 합니다
+
+## Apollo가 cache하기 위한 조건
+
+### TL;DR
+
+1. path가 같은 결과를 보장할 것이라 전제하기에 query들끼리 path가 같으면 cache하려고 합니다
+2. query path 자체가 같은 결과를 보장해야하지만 값이 다를 경우(e.g. 변수를 받고 변수에 따른 다른 결과를 줄 경우)에는 object identifier를 이용해서 cache할 수 있습니다.
+3. 1,2번 아무것도 충족하지 못할 경우 debugger에 warning이 뜹니다. 해결 방법도 같이 나오니 참고해서 fieldpolicy를 수정합시다
+4. 모든 path에 id를 쓰기 싫다면 → fetchMore와 updateQueries으로 해결해볼 수 있습니다
+5. db에서 데이터 업데이트가 있을 경우 apollo client가 자동으로 새로운 데이터를 cache에 할당해주고 re-rendering까지 합니다.
+
+Apollo Client는 application data graph안에서 각 path는 안정된 정보를 가르키는 것을 전제합니다.
+→ <mark>같은 path는 같은 정보를 return할 것이라 가정합니다</mark>
+
+```graphql
+query particularAuthor {
+  author(name: "Thomas Piketty") {
+    name
+    age
+  }
+}
+query authorAndBook {
+  book(isbn: "9780674430006") {
+    title
+  }
+  author(name: "Thomas Piketty") {
+    name
+    age
+  }
+}
+```
+
+위 query에서 `RootQuery→author(name: "Thomas Piketty")→name, age` 가 현재 겹치는 path입니다
+
+하지만 id는 변수이기 때문에 `author → name` 에 해당하는 path는 서로 다른 정보를 가르키는 path로 인식하고
+해당 정보들을 병합하는게 apollo의 기획 의도이지만 병합되면 안되고 개별로 cache하려면 다음과 같은 방법을 시도 할 수 있습니다
+
+```graphql
+query {
+  author(name: "Arthur Goldhammer") {
+    coauthors {
+      name // db에서 author(id: '5')와 같은 데이터
+      id
+    }
+  }
+}
+
+query {
+  author(id: "5") {
+    name
+    id
+  }
+}
+```
+
+예로들어 위 query는 모두 같은 정보를 가르키는 path를 가지지만 Apollo는 이걸 구별할 방법이 없습니다.
+
+그래서 object identifier를 사용하게 됩니다. 공식문서에 따르면 Apollo Client는 동일한 object identifier를 가지고 있는 모든 object는 같은 정보를 가르킬 것이라 가정하기 때문입니다.
+
+id를 통해서 path를 재정렬하게 되고, 최종적으로는 id별로 개별 저장하며 [Thomas Piketty, 5]라는 캐시를 두번 저장하지 않고 deduplicate해서 저장하게 됩니다.
+
+---
+
+## Apollo가 cache 하는 방법
+
+### TL;DR
+
+1. id가 없으면 cache할 수 있도록 유사 id인 keyFields를 사용해서 cache할 수 있습니다
+2. network request을 할지 read from cache를 할지는 선택해야 합니다
+3. read from cache를 선택한 경우에는 [Fetch Policies](https://www.apollographql.com/docs/react/data/queries/#supported-fetch-policies)와 [Cache redirect](https://www.apollographql.com/docs/react/caching/advanced-topics/#cache-redirects)라는 선택지가 2개 있습니다
+4. mutation은 아래에 정리된 경우의 수에 따라 적절히 cache를 업데이트 해주어야 refetch 때 request를 줄일 수 있습니다
+
+앞서 db에서 데이터 업데이트가 있을 경우 자동으로 query에 할당하고 re-render도 해준다고 했지만 다시 받아온 data를 cache할 수 있는지는 다른 문제입니다
+
+know when to re-fetch data vs. when to return what’s already cached (rest의 상황에서는)
+
+<mark>→ when to pull from the cache vs. when to make network requests (apollo에서는)</mark>
+
+이걸 고려해야하는 이유는 apollo가 query path가 중복될 경우에 request 자체를 intercept해서 deduplicate할 수 있기 때문에
+그리고 mutation 이후에도 자동으로 cache를 업데이트 할 수 있기 때문입니다
+
+### Query
+
+정보의 끝단에 id가 없을 경우에 **reliably establish uniqueness** for each items을 하기 위해서 keyFields를 사용할 수도 있습니다. 일종의 id alias나 fallback같은 느낌입니다
+
+**keyFields** : id가 없는 item 중에서 한개의 field를 id처럼 쓰는 것, 혹은 fallback들을 지정해 여러 field도, nested으로도 가능
+
+```json
+{
+  "__typename": "Todo",
+  "text": "First todo",
+  "completed": false,
+  "date": "2020-07-08T15:05:32.248Z",
+  "user": {
+    "email": "me@apollographql.com"
+  }
+}
+```
+
+와 같이 id 가 없을 경우
+
+```graphql
+  typePolicies: {
+    Todo: {
+      // If one of the keyFields is an object with fields of its own, you can
+      // include those nested keyFields by using a nested array of strings:
+      keyFields: ["date", "user", ["email"]],
+    }
+  },
+});
+```
+
+우선적으로 date를 id처럼 사용하려고 하고 그래도 중복이 있을 경우 다음에 user... 등으로 나아가다가 아래와 같이 저장하게 됩니다
+
+```json
+Todo:{"date":"2020-07-08T15:05:32.248Z","user":{"email":"me@apollographql.com"}}
+```
+
+**fetchPolicies:** cache되지 않았거나 cache된 것 보다 더 많은 field를 요구할 경우 새로이 request를 보내고 다시 cache하게 됩니다. 이때의 행동 자체를 조절할 수 있는 옵션입니다
+
+defaut값인 cache-first는 아래와 같이 행동합니다
+
+1. `GetTodoById` query를 `id: 1`로 받아옴, 이걸 cache함
+2. `GetTodoById` query를 또 다시 `id: 1`으로 받으려고 하면 path도 같고 정보도 같기에 request 보내지 않음
+
+하지만 다른 경우로는
+
+1. `GetAllTodos` query를 통해 `모든 id`를 가진 Todo들을 받아옴, 이걸 cache함
+2. `GetTodoById` query를 통해 `id: 1`으로 받으려고 하면, request를 보내서 받아옴
+3. 여기서 request를 보내는 이유는 `GetAllTodos`와 `GetTodoById` 가 path는 같을지언정 id 마저 같을 거라고 apollo가 가정하지 않았기 때문입니다
+
+이 행동이 마음에 들지 않으면 fetchPolicies를 다르게 설정하거나 [Cache redirect](https://www.apollographql.com/docs/react/caching/advanced-topics/#cache-redirects) 을 통해서 해결하라고 합니다
+
+```js
+Query:{
+   fields{
+        getZone:{
+            read(_, {args, toReference}){
+                return toReference({
+                    __typename: 'Zone',
+                    _id: args._id,
+                })
+            }
+        }
+   }
+}
+
+const result = client.readQuery({
+   query: GET_ZONE,
+   variables:{
+        _id: 'foo'
+   }
+})
+```
+
+### Mutation
+
+1. updates a single existing entity
+2. modifies multiple entities
+3. creates
+4. deletes
+5. Application-specific side-effects
+
+첫번째인 **updates a single existing entity**의 경우는 쉽습니다
+
+```graphql
+mutation EditTodo($id: Int!, $text: String!) {
+  editTodo(id: $id, text: $text) {
+    success
+    todo {
+      # <- Returning it here
+      id
+      text
+      completed
+    }
+  }
+}
+```
+
+은 반환값에 id, text 둘 다 있기에, id를 비교해서 cache에서 찾고 새로운 값으로 update해줍니다
+
+두번째인 **modifies multiple entities**도 마찬가지로 반환값에 id + 변화된 값들을 포함하고 있으면 첫번째와 같은 과정으로 update해줍니다. 하지만 변화된 값들을 전부 포함하지 않고 있다면 직접 업데이트 해주어야 합니다
+
+세번째인 **creates**의 경우에는 참고할 cache의 id가 없기에 자동으로 업데이트가 되지 않습니다 아래의 예시와 같이 직접 cache에 업데이트 해주어야 합니다
+
+```js
+const [mutate, { data, error }] = useMutation<
+    AddTodoTypes.AddTodo,
+    AddTodoTypes.AddTodoVariables
+  >(
+    ADD_TODO,
+    {
+      update (cache, { data }) {
+        const newTodoFromResponse = data?.addTodo.todo;
+        const existingTodos = cache.readQuery<GetAllTodos>({
+          query: GET_ALL_TODOS,
+        });
+
+        if (existingTodos && newTodoFromResponse) {
+          cache.writeQuery({
+            query: GET_ALL_TODOS,
+            data: {
+              todos: [
+                ...existingTodos?.todos,
+                newTodoFromResponse,
+              ],
+            },
+          });
+        }
+      }
+    }
+  )
+```
+
+네번째인 **deletes**도 cache를 업데이트를 하지 않기에 직접 업데이트 해주어야 합니다
+
+```js
+const [mutate, { data, error }] = useMutation<
+  DeleteTodoTypes.DeleteTodo,
+  DeleteTodoTypes.DeleteTodoVariables
+>(
+  DELETE_TODO,
+  {
+    update (cache, el) {
+      const deletedId = el.data?.deleteTodo.todo?.id
+      const allTodos = cache.readQuery<GetAllTodos>({ query: GET_ALL_TODOS });
+
+      cache.writeQuery({
+        query: GET_ALL_TODOS,
+        data: {
+          todos: allTodos?.todos.filter((t) => t?.id !== deletedId)
+        }
+      });
+
+      cache.evict({ id: el.data?.deleteTodo.todo?.id })
+    }
+  }
+)
+```
+
+마지막으로 **Application-specific side-effects** 예로 들어 logout같은 mutation은 cache할 필요가 없습니다. 다만 이때 모든 cache를 evict할 수 있도록 업데이트 시켜 줄 수 있는 선택지가 있습니다
+
+```js
+const LOGOUT = gql`
+  mutation Logout {
+    logout {
+      success
+      message
+    }
+  }
+`
+
+const Navbar = () => {
+  const [logout] = useMutation(LOGOUT, {
+    update() {
+      client.clearStore()
+    },
+  })
+
+  return <div onClick={() => logout()}></div>
+}
+```
+
+---
+
+## Cache를 관리하는 방법
+
+1. merge
+2. read
+3. specifying key arguments
+
+세가지가 있지만 read와 specifying key arguments은 나중에 필요해지만 그때 추가하도록 하겠습니다
+
+### Merge
+
+```graphql
+query BookWithAuthorName {
+  favoriteBook {
+    id
+    author {
+      name
+    }
+  }
+}
+
+query BookWithAuthorBirthdate {
+  favoriteBook {
+    id
+    author {
+      dateOfBirth
+    }
+  }
+}
+```
+
+위 두 query를 보면 path는 거의 동일하지만 마지만 field만 서로 다릅니다. 하지만 결국은 다른 path이기에 apollo는
+
+```json
+{
+  "__typename": "Book",
+  "id": "abc123",
+  "author": {
+    "__typename": "Author",
+    "name": "George Eliot"
+  }
+}
+```
+
+위와 같은 형태로 먼저 cache에 저장해두고 다음으로 `dateOfBirth`를 요청하는 query를 보냅니다
+
+```json
+{
+  "__typename": "Book",
+  "id": "abc123",
+  "author": {
+    "__typename": "Author",
+    "dateOfBirth": "1819-11-22"
+  }
+}
+```
+
+위와 같은 cache를 저장해야 하지만 이미 같은 id를 가진 cache object가 있기에 서로 충돌이 납니다. 그리고 이때 apollo의 default 행동은 단순히 마지막 cache로 override하는 것입니다.
+그렇게 된다면 `name`에 해당하는 cache는 날라가 버릴테고 다시 해당 query를 부르는 page로 갔을 때는 cache에서 `name`을 참조하지 못했기 때문에 다시 request를 보내는 악순환이 생기게 됩니다
+
+이럴 때 사용하게 되는 것이 **merge**입니다.
+
+```js
+const cache = new InMemoryCache({
+  typePolicies: {
+    Book: {
+      fields: {
+        author: {
+          // 더 자세하게 조정하고 싶으면 이와 같이
+          merge(existing, incoming, { mergeObjects }) {
+            return mergeObjects(existing, incoming);
+          },
+          // 위와 같이 object형태로 합치는 것만을 원하면 boolean
+          `merge: true,`
+        },
+      },
+    },
+  },
+});
+```
+
+위와 같이 path가 비슷하지만 field가 달라 object 형태로 합치는 것 외에도 merge는 다음과 같이 사용될 수 있습니다
+
+아직 저희 app에는 없지만 [paginated list](https://www.apollographql.com/docs/react/caching/cache-field-behavior/#handling-pagination) 를 구현할 때처럼 cache가 array형태로 저장되어야 할때는
+
+```js
+const cache = new InMemoryCache({
+  typePolicies: {
+    Agenda: {
+      fields: {
+        tasks: {
+          merge(existing = [], incoming: any[]) {
+            return [...existing, ...incoming]
+          },
+        },
+      },
+    },
+  },
+})
+```
+
+와 같이 array를 연장할 수도 있습니다
+
+---
+
+## Ref
+
+1. [GraphQL Concepts Visualized - Apollo GraphQL Blog](https://www.apollographql.com/blog/graphql/basics/the-concepts-of-graphql/) ★★★★★
+2. [Demystifying Cache Normalization - Apollo GraphQL Blog](https://www.apollographql.com/blog/apollo-client/caching/demystifying-cache-normalization/#operations-the-cache-cannot-automatically-update) ★★★★★
+3. [Customizing the behavior of cached fields - Apollo GraphQL Docs](https://www.apollographql.com/docs/react/caching/cache-field-behavior/#the-merge-function) ★★★★
+4. [[정리] Apollo client 캐시(cache)사용](https://crmrelease.tistory.com/140) ★
+5. [apollo에서 비동기 상태 관리하는 방식 알아보기 | morethanmin](https://morethanmin.com/post/apollo-gettings-started-mutate) ★★
+6. [Redux to Apollo: Data Access Patterns - Apollo GraphQL Blog](https://www.apollographql.com/blog/apollo-client/architecture/redux-to-apollo-data-access-patterns/) ★★★
