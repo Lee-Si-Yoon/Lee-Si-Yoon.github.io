@@ -7,17 +7,97 @@
       <language>ko</language>
       <managingEditor>dlduqehd1@gmail.com (Lee Si Yoon)</managingEditor>
       <webMaster>dlduqehd1@gmail.com (Lee Si Yoon)</webMaster>
-      <lastBuildDate>Sun, 30 Apr 2023 00:00:00 GMT</lastBuildDate>
+      <lastBuildDate>Tue, 30 May 2023 00:00:00 GMT</lastBuildDate>
       <atom:link href="https://Lee-Si-Yoon.github.io/feed.xml" rel="self" type="application/rss+xml"/>
       
   <item>
-    <guid>https://Lee-Si-Yoon.github.io/blog/friendliai</guid>
-    <title>friendli AI</title>
-    <link>https://Lee-Si-Yoon.github.io/blog/friendliai</link>
+    <guid>https://Lee-Si-Yoon.github.io/blog/rxjs-intro-1</guid>
+    <title>rxjs intro - 1</title>
+    <link>https://Lee-Si-Yoon.github.io/blog/rxjs-intro-1</link>
+    <description>rxjs 입문기, Observable부터</description>
+    <pubDate>Tue, 30 May 2023 00:00:00 GMT</pubDate>
+    <author>dlduqehd1@gmail.com (Lee Si Yoon)</author>
+    <category>rxjs</category>
+  </item>
+
+  <item>
+    <guid>https://Lee-Si-Yoon.github.io/blog/apollo-cache</guid>
+    <title>Apollo Cache</title>
+    <link>https://Lee-Si-Yoon.github.io/blog/apollo-cache</link>
+    <description>apollo cache의 mechanism과 어떻게 관리하는지</description>
+    <pubDate>Wed, 10 May 2023 00:00:00 GMT</pubDate>
+    <author>dlduqehd1@gmail.com (Lee Si Yoon)</author>
+    <category>apollo</category><category>graphql</category><category>cache</category><category>tip'</category>
+  </item>
+
+  <item>
+    <guid>https://Lee-Si-Yoon.github.io/blog/outlet-lazy-load</guid>
+    <title>Outlet &amp; Lazy load</title>
+    <link>https://Lee-Si-Yoon.github.io/blog/outlet-lazy-load</link>
     null
     <pubDate>Sun, 30 Apr 2023 00:00:00 GMT</pubDate>
     <author>dlduqehd1@gmail.com (Lee Si Yoon)</author>
-    <category>career</category>
+    <category>optimization</category>
+  </item>
+
+  <item>
+    <guid>https://Lee-Si-Yoon.github.io/blog/playwright-issues</guid>
+    <title>Playwright issues</title>
+    <link>https://Lee-Si-Yoon.github.io/blog/playwright-issues</link>
+    <description>playwright issues and why we moved to cypress</description>
+    <pubDate>Sun, 30 Apr 2023 00:00:00 GMT</pubDate>
+    <author>dlduqehd1@gmail.com (Lee Si Yoon)</author>
+    <category>playwright</category><category>cypress</category><category>test</category>
+  </item>
+
+  <item>
+    <guid>https://Lee-Si-Yoon.github.io/blog/apollo-preflight-script</guid>
+    <title>Apollo Preflight script</title>
+    <link>https://Lee-Si-Yoon.github.io/blog/apollo-preflight-script</link>
+    <description>how Appollo preflight scripts solved auth issues</description>
+    <pubDate>Sun, 16 Apr 2023 00:00:00 GMT</pubDate>
+    <author>dlduqehd1@gmail.com (Lee Si Yoon)</author>
+    <category>grahpql</category><category>apollo</category><category>framework</category>
+  </item>
+
+  <item>
+    <guid>https://Lee-Si-Yoon.github.io/blog/cypress-tips</guid>
+    <title>Cypress Tips</title>
+    <link>https://Lee-Si-Yoon.github.io/blog/cypress-tips</link>
+    <description>cypress tips</description>
+    <pubDate>Sun, 16 Apr 2023 00:00:00 GMT</pubDate>
+    <author>dlduqehd1@gmail.com (Lee Si Yoon)</author>
+    <category>cypress</category><category>test</category><category>tips</category>
+  </item>
+
+  <item>
+    <guid>https://Lee-Si-Yoon.github.io/blog/playwright-tips</guid>
+    <title>Playwright tips</title>
+    <link>https://Lee-Si-Yoon.github.io/blog/playwright-tips</link>
+    <description>playwright issues and we I moved to cypress</description>
+    <pubDate>Sun, 16 Apr 2023 00:00:00 GMT</pubDate>
+    <author>dlduqehd1@gmail.com (Lee Si Yoon)</author>
+    <category>test</category><category>playwright</category><category>tips</category>
+  </item>
+
+  <item>
+    <guid>https://Lee-Si-Yoon.github.io/blog/links-to-read</guid>
+    <title>Links to Read</title>
+    <link>https://Lee-Si-Yoon.github.io/blog/links-to-read</link>
+    <description>TODO readlist</description>
+    <pubDate>Sun, 26 Mar 2023 00:00:00 GMT</pubDate>
+    <author>dlduqehd1@gmail.com (Lee Si Yoon)</author>
+    <category>links</category>
+  </item>
+
+  <item>
+    <guid>https://Lee-Si-Yoon.github.io/blog/vocab</guid>
+    <title>Vocab</title>
+    <link>https://Lee-Si-Yoon.github.io/blog/vocab</link>
+    <description>personal dictionary and TODOs</description>
+    <pubDate>Sun, 26 Mar 2023 00:00:00 GMT</pubDate>
+    <author>dlduqehd1@gmail.com (Lee Si Yoon)</author>
+    <category>vocab</category><category>TODO</category>
   </item>
 
     </channel>
