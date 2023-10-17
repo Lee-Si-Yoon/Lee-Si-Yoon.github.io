@@ -1,0 +1,24 @@
+
+  <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+    <channel>
+      <title>SiYoon</title>
+      <link>https://Lee-Si-Yoon.github.io/blog</link>
+      <description></description>
+      <language>ko</language>
+      <managingEditor>dlduqehd1@gmail.com (Lee Si Yoon)</managingEditor>
+      <webMaster>dlduqehd1@gmail.com (Lee Si Yoon)</webMaster>
+      <lastBuildDate>Tue, 17 Oct 2023 00:00:00 GMT</lastBuildDate>
+      <atom:link href="https://Lee-Si-Yoon.github.io/tags/design-system/feed.xml" rel="self" type="application/rss+xml"/>
+      
+  <item>
+    <guid>https://Lee-Si-Yoon.github.io/blog/hungry-design-token-system</guid>
+    <title>헝그리 디자인 토큰 시스템</title>
+    <link>https://Lee-Si-Yoon.github.io/blog/hungry-design-token-system</link>
+    <description>최소 단위의 디자인 토큰 시스템은 디자이너-FE개발자 간의 사이를 어떻게 개선시켜주는가</description>
+    <pubDate>Tue, 17 Oct 2023 00:00:00 GMT</pubDate>
+    <author>dlduqehd1@gmail.com (Lee Si Yoon)</author>
+    <category>design-token-system</category><category>design-system</category>
+  </item>
+
+    </channel>
+  </rss>
