@@ -1,0 +1,161 @@
+---
+title: 헝그리 디자인 토큰 시스템
+date: '2023-10-17'
+tags: ['design-token-system', 'design-system']
+draft: false
+summary: 최소 단위의 디자인 토큰 시스템은 디자이너-FE개발자 간의 사이를 어떻게 개선시켜주는가
+images: []
+layout: PostSimple
+canonicalUrl:
+authors: ['default']
+---
+
+# 헝그리 디자인 토큰 시스템
+
+- [헝그리 디자인 토큰 시스템](#--------------)
+  - [TLDR](#tldr)
+  - [How to](#how-to)
+    - [Figma에서 variable 설정](#figma---variable---)
+    - [Figma의 디자인 토큰을 코드 베이스에 sync하는 과정](#figma------------------sync-----)
+    - [받은 토큰을 app에서 소비하는 과정](#-------app----------)
+    - [비고](#--)
+
+## TLDR
+
+의의는 figma에 저장되어 있는 값들을 single-source-of-truth로 만드는 것입니다. 만약 css variable들을 FE개발자가 모두 관리하고 있었다면 이 시스템을 도입 후 디자이너와 책임을 나눠갖게 되는 것이죠
+
+1. figma variables와 FE 개발에 사용되는 css variable의 동기화 + CI로 자동화
+2. 디자이너가 figma에서 variable 수정시 FE 코드베이스에 바뀐 내용 커밋이 되도록하는 과정
+3. FE 측에서 variable들을 theme에 물려두거나 각 컴포넌트들에서 해당 variable를 잘 사용하고 있었다면 효율성 2배
+
+## How to
+
+### Figma에서 variable 설정
+
+- 각 FE팀 마다 token parsing을 다르게 할 가능성이 높음으로 [design tokens](https://github.com/lukasoppermann/design-tokens#plugin-usage)의 기본설정에서는 다음과 같이 된다 정도로 짚고 넘기시면 될 듯합니다
+
+![token1](/static/images/token-system/token1.png)
+
+figma에서 local styles로 지정가능한 variables(typography, effect, color, grid)은 토큰 형식이 color-yellow , typography-display1-fontSize 와 같이 지정이 됩니다
+
+```scss
+$color-point-yellow: #ffdf6d;
+$color-c1-1: #0b2460;
+$color-c1-2: #2a5ea6;
+$color-c1-3: #e05aa7;
+```
+
+![token2](/static/images/token-system/token2.png)
+
+local variables로 지정한 variables은 `<collectionName>-<group>-<subGroup>-<value>` 순으로 붙게 됩니다. 아직 beta임으로 작성일(2023-10-17) 기준
+
+```scss
+$primitives-color-grey-0: #f8f9fcff;
+$primitives-color-grey-25: #f7f8faff;
+$primitives-color-grey-50: #f0f4f8ff;
+$primitives-color-grey-100: #e5ebf2ff;
+```
+
+### Figma의 디자인 토큰을 코드 베이스에 sync하는 과정
+
+디자이너: figma plugin인 [design tokens](https://github.com/lukasoppermann/design-tokens#plugin-usage)에서 지정된 url과 access token을 이용해서 token들을 보내거나 직접 파일을 전달합니다
+
+FE개발자: husky나 cron-job 혹은 직접 받은 token파일을 FE 코드베이스에 적용시켜 preview를 올려서 공유합니다
+
+-> 리뷰 후 머지
+
+### 받은 토큰을 app에서 소비하는 과정
+
+**scss 사용시**
+
+```scss
+// _variables.scss
+
+$typography-code1-paragraph-spacing: 0rem;
+$typography-code1-text-case: none;
+$typography-label2-font-size: 0.75rem;
+$typography-label2-text-decoration: none;
+...
+```
+
+```scss
+// text.module.scss
+
+@use './variables.scss';
+
+.text {
+  line-height: variables.$typography-label2-line-height;
+}
+```
+
+variable을 그대로 사용하거나, token을 parse하는 과정 중에서 [deep-map](https://amzn.github.io/style-dictionary/#/formats?id=scssmap-deep)과 같이 출력하여
+
+```scss
+$tokens: (
+  'typography': (
+    'display1': (
+      'fontSize': $typography-display1-font-size,
+      'textDecoration': $typography-display1-text-decoration,
+      'fontFamily': $typography-display1-font-family,
+      'lineHeight': $typography-display1-line-height,
+      ...,
+    ),
+  ),
+);
+```
+
+```scss
+// text.module.scss
+
+@function map-deep-get($map, $keys...) {
+  @each $key in $keys {
+    $map: map-get($map, $key);
+  }
+  @return $map;
+}
+
+.text {
+  line-height: map-deep-get($tokens, 'typography', 'display1', 'lineHeight');
+}
+```
+
+와 같이 소비하는 방법이 있습니다. 단점은 자동완성 및 타입검사가 안돼서 변수명을 잘못 적으면 직접 찾아야하는 것입니다
+
+**CSS-IN-JS 사용시**
+
+만약 CSS-IN-JS를 사용하고 있다면 json 파일을 그대로 사용할 수 있고, 타입검사 및 intellisense 지원이 모두 됩니다
+
+```json
+// color.json
+{
+  "primitives": {
+    "color": {
+      "grey": {
+        "0": "#f8f9fcff",
+        "25": "#f7f8faff",
+        "50": "#f0f4f8ff"
+      }
+    }
+  }
+}
+```
+
+```ts
+// text.css.ts
+
+import { style } from '@vanilla-extract/css'
+
+import colorTokens from './color.json'
+
+export const root = style({
+  color: colorTokens.primitives.color.grey[0],
+})
+```
+
+---
+
+### 비고
+
+1. [웹에서 css 추출 가능한 CLI 툴](https://github.com/projectwallace/extract-css-core)
+
+2. 위 툴로 자체적인 design-token-system이 얼마나 잘 지켜졌는지 [평가 툴을 만든 예시](https://www.michaelmang.dev/blog/scoring-design-tokens-adoption-with-oclif-and-postcss/)
