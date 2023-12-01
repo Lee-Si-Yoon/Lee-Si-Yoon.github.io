@@ -16,13 +16,13 @@ export default function PostLayout({ frontMatter, authorDetails, next, prev, chi
       <ScrollTopAndComment />
       <article>
         <div>
-          <header className="mt-14">
+          {/* <header className="mt-14">
             <div className="space-y-1  pb-10 text-center">
               <dl>
                 <div>
                   <dt className="sr-only">Published on</dt>
                   <dd className="text-base font-medium leading-6 text-gray-500 dark:text-gray-400">
-                    {/* <time dateTime={date}>{formatDate(date)}</time> */}
+                    <time dateTime={date}>{formatDate(date)}</time>
                   </dd>
                 </div>
               </dl>
@@ -30,7 +30,7 @@ export default function PostLayout({ frontMatter, authorDetails, next, prev, chi
                 <PageTitle>{title}</PageTitle>
               </div>
             </div>
-          </header>
+          </header> */}
           <div
             className="pb-8 dark:divide-gray-700 xl:divide-y-0 "
             style={{ gridTemplateRows: 'auto 1fr' }}>
