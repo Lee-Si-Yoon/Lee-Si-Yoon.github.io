@@ -5,20 +5,20 @@ const dedent = require('dedent')
 
 const root = process.cwd()
 
-const getAuthors = () => {
-  const authorPath = path.join(root, 'data', 'authors')
-  const authorList = fs.readdirSync(authorPath).map((filename) => path.parse(filename).name)
-  return authorList
-}
+// const getAuthors = () => {
+//   const authorPath = path.join(root, 'data', 'authors')
+//   const authorList = fs.readdirSync(authorPath).map((filename) => path.parse(filename).name)
+//   return authorList
+// }
 
-const getLayouts = () => {
-  const layoutPath = path.join(root, 'layouts')
-  const layoutList = fs
-    .readdirSync(layoutPath)
-    .map((filename) => path.parse(filename).name)
-    .filter((file) => file.toLowerCase().includes('post'))
-  return layoutList
-}
+// const getLayouts = () => {
+//   const layoutPath = path.join(root, 'layouts')
+//   const layoutList = fs
+//     .readdirSync(layoutPath)
+//     .map((filename) => path.parse(filename).name)
+//     .filter((file) => file.toLowerCase().includes('post'))
+//   return layoutList
+// }
 
 const genFrontMatter = (answers) => {
   let d = new Date()
@@ -30,22 +30,28 @@ const genFrontMatter = (answers) => {
   const tagArray = answers.tags.split(',')
   tagArray.forEach((tag, index) => (tagArray[index] = tag.trim()))
   const tags = "'" + tagArray.join("','") + "'"
-  const authorArray = answers.authors.length > 0 ? "'" + answers.authors.join("','") + "'" : ''
+  // const authorArray = answers.authors.length > 0 ? "'" + answers.authors.join("','") + "'" : ''
 
+  /**
+   * draft: ${answers.draft === 'yes' ? true : false}
+   * canonicalUrl: ${answers.canonicalUrl}
+   * layout: ${answers.layout}
+   */
   let frontMatter = dedent`---
   title: ${answers.title ? answers.title : 'Untitled'}
   date: '${date}'
   tags: [${answers.tags ? tags : ''}]
-  draft: ${answers.draft === 'yes' ? true : false}
+  draft: ${false}
   summary: ${answers.summary ? answers.summary : ' '}
   images: []
-  layout: ${answers.layout}
-  canonicalUrl: ${answers.canonicalUrl}
+  layout: PostSimple
+  canonicalUrl:
+  authors: ['default']
   `
 
-  if (answers.authors.length > 0) {
-    frontMatter = frontMatter + '\n' + `authors: [${authorArray}]`
-  }
+  // if (answers.authors.length > 0) {
+  //   frontMatter = frontMatter + '\n' + `authors: [${authorArray}]`
+  // }
 
   frontMatter = frontMatter + '\n---'
 
@@ -59,45 +65,45 @@ inquirer
       message: 'Enter post title:',
       type: 'input',
     },
-    {
-      name: 'extension',
-      message: 'Choose post extension:',
-      type: 'list',
-      choices: ['mdx', 'md'],
-    },
-    {
-      name: 'authors',
-      message: 'Choose authors:',
-      type: 'checkbox',
-      choices: getAuthors,
-    },
+    // {
+    //   name: 'extension',
+    //   message: 'Choose post extension:',
+    //   type: 'list',
+    //   choices: ['mdx', 'md'],
+    // },
+    // {
+    //   name: 'authors',
+    //   message: 'Choose authors:',
+    //   type: 'checkbox',
+    //   choices: getAuthors,
+    // },
     {
       name: 'summary',
       message: 'Enter post summary:',
       type: 'input',
     },
-    {
-      name: 'draft',
-      message: 'Set post as draft?',
-      type: 'list',
-      choices: ['yes', 'no'],
-    },
+    // {
+    //   name: 'draft',
+    //   message: 'Set post as draft?',
+    //   type: 'list',
+    //   choices: ['yes', 'no'],
+    // },
     {
       name: 'tags',
       message: 'Any Tags? Separate them with , or leave empty if no tags.',
       type: 'input',
     },
-    {
-      name: 'layout',
-      message: 'Select layout',
-      type: 'list',
-      choices: getLayouts,
-    },
-    {
-      name: 'canonicalUrl',
-      message: 'Enter canonical url:',
-      type: 'input',
-    },
+    // {
+    //   name: 'layout',
+    //   message: 'Select layout',
+    //   type: 'list',
+    //   choices: getLayouts,
+    // },
+    // {
+    //   name: 'canonicalUrl',
+    //   message: 'Enter canonical url:',
+    //   type: 'input',
+    // },
   ])
   .then((answers) => {
     // Remove special characters and replace space with -
@@ -110,7 +116,8 @@ inquirer
     // FIXME add compose to career
     if (!fs.existsSync('data/blog')) fs.mkdirSync('data/blog', { recursive: true })
     const filePath = `data/blog/${fileName ? fileName : 'untitled'}.${
-      answers.extension ? answers.extension : 'md'
+      // answers.extension ? answers.extension : 'md'
+      'mdx'
     }`
     fs.writeFile(filePath, frontMatter, { flag: 'wx' }, (err) => {
       if (err) {
