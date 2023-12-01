@@ -4,13 +4,13 @@ date: '2023-04-30'
 tags: ['playwright', 'cypress', 'test']
 draft: false
 summary: playwright issues and why we moved to cypress
-images: []
+images: ['/static/images/playwright-issues/playwright-issues-1.png']
 layout: PostSimple
 canonicalUrl:
 authors: ['default']
 ---
 
----
+# {frontmatter.title}
 
 ## #0 - selecting `<Select/>` from Ant.design
 
@@ -20,7 +20,8 @@ authors: ['default']
 ant design의 select는 클릭 후 비동기적으로 option들을 dom tree에 추가시키는 형태여서 마땅한 dom selector가 없는 상황
 
 id로 선택하려고 해도 `rc_select_<number>` 형태로 임의의 숫자가 붙이기에 id selector는 안됨
-![playwright-issues-1](https://user-images.githubusercontent.com/76679207/235346433-f766cda1-8e31-42d6-ab44-e5cd7bb2a42f.gif)
+
+<Image src="https://user-images.githubusercontent.com/76679207/235346433-f766cda1-8e31-42d6-ab44-e5cd7bb2a42f.gif" />
 
 ### Attempt #1
 
@@ -112,7 +113,7 @@ await differentOption.click()
 2. 데모 시연을 하기 위해서는 부족한 설정들, 예컨대 [slowmo](https://playwright.dev/docs/debug#headed-mode)를 이용해서 천천히 볼 수 있지만 모든 스텝을 느리게 만들기에 req, res마저 기다려야 한다. 또한 debugger에서 한단계씩 볼순 있지만 뒤돌아가기는 안된다
 3. 2번 장점이었던 test generator는 애초에 TDD로 작성한 화면이 아니라면 크게 도움이 되지 않는다. 아래 사진을 보면 dom selector가 난장판이다
 
-![playwright-1](/static/images/playwright-issues/playwright-issues-1.png)
+<Image src="/static/images/playwright-issues/playwright-issues-1.png" />
 
 ### Pros & Cons - cypress
 

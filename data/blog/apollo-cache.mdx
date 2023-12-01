@@ -1,16 +1,29 @@
 ---
 title: Apollo Cache
-date: '2023-05-10'
-tags: ['apollo', 'graphql', 'cache', tip']
+date: '2023-05-30'
+tags: ['graphql', 'cache']
 draft: false
 summary: apollo cache의 mechanism과 어떻게 관리하는지
-images: []
+images: ['/static/images/banners/apollo-client.png']
 layout: PostSimple
 canonicalUrl:
 authors: ['default']
 ---
 
-# QA
+# {frontmatter.title}
+
+<TOCInline
+  toc={[
+    { value: 'TLDR', url: '#qa', depth: 2 },
+    { value: 'Apollo가 cache하기 위한 조건', url: '#apollo가-cache하기-위한-조건', depth: 2 },
+    { value: 'Apollo가 cache 하는 방법', url: '#apollo가-cache-하는-방법', depth: 2 },
+    { value: 'Cache를 관리하는 방법', url: '#cache를-관리하는-방법', depth: 2 },
+    { value: '비고', url: '#ref', depth: 2 },
+  ]}
+  asDisclosure={true}
+/>
+
+## QA
 
 **Q. 언제 신경 써야 할까요**
 
@@ -27,8 +40,6 @@ authors: ['default']
 → db에 업데이트가 있었으면 Apollo client가 새로운 정보를 받아오고 자동으로 re-render까지 합니다
 
 ## Apollo가 cache하기 위한 조건
-
-### TL;DR
 
 1. path가 같은 결과를 보장할 것이라 전제하기에 query들끼리 path가 같으면 cache하려고 합니다
 2. query path 자체가 같은 결과를 보장해야하지만 값이 다를 경우(e.g. 변수를 받고 변수에 따른 다른 결과를 줄 경우)에는 object identifier를 이용해서 cache할 수 있습니다.
@@ -90,7 +101,7 @@ id를 통해서 path를 재정렬하게 되고, 최종적으로는 id별로 개�
 
 ## Apollo가 cache 하는 방법
 
-### TL;DR
+### TLDR
 
 1. id가 없으면 cache할 수 있도록 유사 id인 keyFields를 사용해서 cache할 수 있습니다
 2. network request을 할지 read from cache를 할지는 선택해야 합니다

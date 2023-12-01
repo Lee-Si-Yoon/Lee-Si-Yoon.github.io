@@ -1,53 +1,73 @@
 ---
-title: 디자인 시스템 도입기
+title: FE팀 독립전쟁 - UI Kit 편
 date: '2023-10-17'
 tags: ['design-system']
 draft: false
-summary: 근 1년 동안 유지하던 컴포넌트 라이브러리를 망해버리고 v2를 기획하며 새로이 보였던 것들
-images: []
+summary: 디자인 시스템에서 개별 컴포넌트에 대한 책임지지 않기.
+images: ['/static/images/banners/crossing-delaware.jpeg']
 layout: PostSimple
 canonicalUrl:
 authors: ['default']
 ---
 
-# 디자인 시스템 도입기
+# {frontmatter.title}
+
+<TOCInline
+  toc={[
+    { value: 'v1 회고', url: '#v1-retrospective', depth: 2 },
+    { value: 'v2 목표', url: '#v2-goal', depth: 2 },
+    { value: 'Mantine을 선택한 이유', url: '#mantine을-선택한-이유', depth: 3 },
+    { value: 'Style api 적극 활용하기', url: '#style-api-적극-활용하기', depth: 3 },
+  ]}
+  asDisclosure={true}
+/>
 
 ## v1 retrospective
 
-1. 디자인이 나오지 않으면 병목발생
-2. antd 컴포넌트에 기능, 스타일, 테스트 추가 후 통째로 관리해서 유지보수 어려움
-3. inline / block 등과 같이 레이아웃 관련 스타일도 컴포넌트 내부에서 선언해서 레이아웃에 따라서 외부에서 덮어쓰기 남용
-   1. e.g. modalSize: small, medium-480, medium-540, medium-560, medium, large, large-894
-   2. 반응형이 고려되지 않아서 text-wrap이 적용안되거나 flex,grid 가 깨짐
-4. antd 스타일 덮어쓰기 실패 → !important, :global() 선택자 남용
+별다른 사상없이 antd를 사용해서 디자인 시스템 v1을 운영한지 8개월차... 문제가 끊임없이 발생했는데 대표적인 것들만 추리면
+
+1. 디자인이 나오지 않으면 디자인을 기다리고 있는 팀원들
+2. antd 컴포넌트에 기능, 스타일, 테스트 추가 후 통째로 관리해서 유지보수가 헬게이트
+3. inline / block, width, height 등과 같이 레이아웃 관련 스타일도 컴포넌트 내부에서 직접 정하다보니
+   1. e.g. modal 컴포넌트의 prop이 어느새 modalSize: small, medium-480, medium-540, medium-560, medium, large, large-894, etc.. 2절에 3절 끝도 없는 prop 연장
+4. antd 스타일 덮어쓰기 실패 → !important, :global() 선택자가 남용
+
+등 어느새 컴포넌트에 문제가 생기면 컴포넌트 만든 사람과 그걸 리뷰한 사람을 찾고 있는 술래잡기가 반복되고 있었다.
+도저히 못참겠어서 리뉴얼해서 v2를 만들자고 제의하기에 이르렀지만, 새로운 제품이 곧 출시되기에 들일 수 있는 리소스는 최저치였다.
 
 ## v2 goal
 
+어떻게든 직접 구현하는 일을 줄이고 R&R이 사람한테 가서는 안된다는 생각이 들었다. 그래서 제안한 v2의 멘탈 모델은 다음과 같다.
+
 1. 디자인이 나오지 않았더라도, 디자인이 크게 깨지지 않는 선에서 개발 가능하도록 theme 활용
-2. mantine에 스타일만 추가한 core와 기능 및 테스트도 추가한 extended 별도 운영해서 유지보수 범위 명시
-3. mantine의 box를 사용해서 레이아웃 관련 스타일은 외부에서만 선언
-   1. 컴포넌트 내부는 width:100%, height: auto를 가지고 외부에서 크기 조절
-4. theme이 지정한 스타일 그대로 활용 / 그외 custom component는 직접 작성(unstyled prop활용)
+2. mantine에 스타일링만한 core와 기능 및 테스트도 추가한 extended 별도 운영해서 유지보수 범위 명시
+3. 레이아웃 관련 스타일은 외부에서 주입
+   1. 직업 컴포넌트 내부를 스타일링 해야한다면 width:100%, height: auto를 가지고 외부에서 크기 조절할 수 있도록하자
+4. theme이 지정한 스타일 그대로 활용 / 그외 custom component는 직접 작성 (unstyled prop활용)
+
+한마디로 축약하면 컴포넌트 기능에 이상이 있으면 그건 Mantine을 제대로 활용하지 못했기에 혹은 Mantine 자체에 버그가 있는걸로
+R&R을 바꾼 것이라고 할 수 있다. 그 외 정말 우리 서비스에서만 사용해야할 custom component를 구현해야 할 때도 theme system이
+잘 구축된 mantine을 활용하면 전체 스타일 가이드에서 크게 벗어나지 않고 구현가능 하리라하는 가정이었다.
 
 ## Mantine을 선택한 이유
 
-모든 mantine 컴포넌트는 box factory에서 생성됨
+모든 mantine 컴포넌트는 [box factory](https://mantine.dev/core/box/)에서 생성된다.
+즉 어떤 컴포넌트를 사용하던 간에 공용 prop이 존재한다는 거고, 그 중 가장 고마운 것은 theme에서 값을 뽑아올 수 있는
+styles api였다.
 
-https://mantine.dev/core/box/
-
-레이아웃 관련된 스타일들을 컴포넌트 외부에서 주입 가능하다는 것
-
-```tsx
+```tsx:Box.tsx
 import { Box } from '@mantine/core'
 
 function Demo() {
   return (
-    <Box mx="auto" maw={400} c="blue.6" bg="#fff">
+    <Box mx="auto" maw={400} bg="#fff">
       Your component
     </Box>
   )
 }
 ```
+
+[styles api](https://mantine.dev/core/button/?t=styles-api)는 아래 예시 표처럼 prop으로 직접 꽂아줄 수도 있고 class를 활용해서 더 세분화 시켜 styling할 수 있다.
 
 | Prop | CSS Property | Theme key     |
 | ---- | ------------ | ------------- |
@@ -55,10 +75,6 @@ function Demo() {
 | mt   | marginTop    | theme.spacing |
 | mb   | marginBottom | theme.spacing |
 | ml   | marginLeft   | theme.spacing |
-
-**styles api** - css 선택자 바로 주입가능해서 덮어쓰기 용이함, antd에서 걸렸던 문제
-
-https://mantine.dev/core/button/?t=styles-api
 
 | Selector | Static selector         | Description                                               |
 | -------- | ----------------------- | --------------------------------------------------------- |
@@ -68,44 +84,20 @@ https://mantine.dev/core/button/?t=styles-api
 | section  | .mantine-Button-section | Left and right sections of the button                     |
 | label    | .mantine-Button-label   | Button children                                           |
 
----
+다만 이렇게 좋아보여도 mantine의 styles api를 잘 활용하기 위해서는 초기 세팅 비용 상당히 드는데...
 
-## TOC
+## Style api 적극 활용하기
 
-- [ui-v2](#ui-v2)
-  - [Mental Modal](#mental-modal)
-  - [How to implement with components](#how-to-implement-with-components)
-  - [How to style components](#how-to-style-components)
-    - [Steps](#steps)
-    - [CSS guide](#css-guide)
-  - [TODO](#todo)
+우선 기본 골자로 `MantineProvider`에 theme 객체를 넣어주고 시작을 한다
 
-FYI) all these introductions are WIP
-
-## Mental Modal
-
-1. Simple is the best, avoid attaching extras to components
-2. Component itself should not determine itself's size & layout if possible
-   - for large list of components [avoid using style props](https://mantine.dev/styles/styles-performance/#responsive-style-props)
-
-## How to implement with components
-
-Mantine component requires `MantineProvider` with theme so in the top level of your app(e.g. main.tsx)
-
-FYI) we only have lightTheme for now
-
-```tsx
+```tsx:main.tsx
 import { MantineProvider } from '@mantine/core'
-import { primitiveTheme, cssResolver } from '@fai/ui-v2/primitive-theme'
-
+import { primitiveTheme } from '@/ui-v2/primitive-theme'
 const root = createRoot(document.querySelector('#root') as HTMLElement)
-
 root.render(
   <StrictMode>
     <MantineProvider
       theme={primitiveTheme}
-      cssVariablesResolver={cssResolver}
-      defaultColorScheme="light"
     >
       <App />
     </MantineProvider>
@@ -113,93 +105,35 @@ root.render(
 )
 ```
 
-At page or view level import the component themes and merge them with primitive
-then provide them to `MantineThemeProvider`
+이렇게 main부터 감싸고 시작하면 페이지마다 theme이 달라질 경우 어떻게 할거냐! 한다면
 
-```tsx
+```tsx:page.tsx
 import { MantineThemeProvider, mergeThemeOverrides } from '@mantine/core'
-import { primitiveTheme } from '@fai/ui-v2/primitive-theme'
-
-import { buttonTheme } from '@fai/ui-v2/components/button'
-
+import { primitiveTheme } from '@/ui-v2/primitive-theme'
+import { buttonTheme } from '@/ui-v2/components/button'
 // Note: It is better to to store theme override outside of component body
 // to prevent unnecessary re-renders
 const theme = mergeThemeOverrides(primitiveTheme, buttonTheme)
-
 export function Page() {
   return (
     <MantineThemeProvider theme={theme}>
-      <div className={layout}>
-        <Button>Label</Button>
-      </div>
+      <Button>오버라이딩 된 버튼</Button>
     </MantineThemeProvider>
   )
 }
 ```
 
-## How to style components
+와 같은 방법도 있다.
 
-key to use theme efficiently is to control root variables nicely, so our step will be
+기본 골자를 살펴봤으니 theme을 잘활용하기 위해서 대략 정리한 세팅 순서를 보자
 
-### Steps
+1. 우선 전역에서 사용될 theme의 변수들이 가장 영향력이 크다. 그렇기에 이것부터 세팅해야 한다. [global theme's variables](https://mantine.dev/styles/css-variables-list/) + [override](https://mantine.dev/styles/css-variables/#css-variables-resolver)
+2. 전역 theme의 변수로 안된다면 컴포넌트 개별 theme이 그 다음으로 영향력이 크다. [css variables](https://mantine.dev/styles/variants-sizes/#sizes-with-components-css-variables)
+   1. 만약 컴포넌트의 variant가 스타일 가이드와 맞지 않는다면 custom variant를 추가할 수도 있다. [variantColorsResolver](https://mantine.dev/styles/variants-sizes/#variantcolorresolver)
+   2. 다 추가한 이후에는 전역 theme 객체와 합쳐줘야 한다. [mergeThemeOverrides](https://mantine.dev/theming/theme-object/#merge-multiple-theme-overrides)
+3. 여기까지 하면 왠만한 스타일링은 다 할 수 있지만, 그래도 못하는 경우가 있다. 그럴 때는 초심으로 돌아가서 css를 직접 작성해야 한다. [style api](https://mantine.dev/styles/styles-api/)
+4. 만약 custom component를 구현해야하는데 위 3방법으로도 커버가 안되는 스타일링이 있다면 아예 백지부터 시작할수도 있다. [unstyled prop](https://mantine.dev/styles/unstyled/)
 
-1. play with [global theme's variables](https://mantine.dev/styles/css-variables-list/) + [override](https://mantine.dev/styles/css-variables/#css-variables-resolver)
-2. if not worked out well, play with component theme's variables
-   - check each component's affected variables + ovveride them with [css variables](https://mantine.dev/styles/variants-sizes/#sizes-with-components-css-variables)
-   - if new variant needed use [variantColorsResolver](https://mantine.dev/styles/variants-sizes/#variantcolorresolver)
-   - merge with global theme [mergeThemeOverrides](https://mantine.dev/theming/theme-object/#merge-multiple-theme-overrides)
-3. if not worked out well, style with mantine's [style api](https://mantine.dev/styles/styles-api/) with css
-4. detach the component from theme with [unstyled prop](https://mantine.dev/styles/unstyled/)
-5. final step, create your own component from scratch + sync to theme using [useProps hook](https://mantine.dev/theming/default-props/#useprops-hook)
-
-```mermaid
----
-title: How to style in v2
----
-flowchart LR
-    0["`global theme's variables
-    (createTheme + CSSVariablesResolver)`"] -->
-    1["`component theme's variables
-    (createTheme + VariantColorsResolver)`"] -->
-    2["`write CSS
-    with style api`"] --"can be handled in mantine"-->
-    3["`use unstyled prop and style from scratch`"]
-    2 --"not available in mantine"-->
-    4["start from scratch
-    + sync to theme"]
-```
-
-### CSS guide
-
-[**DO NOT**] directly consume design tokens(e.g. colorTokens.json, variables.token.json) in css, inject it the global theme then use it
-
-```ts
-import { themeToVars } from '@mantine/vanilla-extract'
-import { createTheme } from '@mantine/core'
-
-const yourTheme = createTheme({
-  other: {
-    yourVariable: 'pink',
-  },
-})
-// CSS variables object, can be access in *.css.ts files
-export const vars = themeToVars(yourTheme)
-```
-
-then use `vars` in the `*.css.ts`
-
-```ts
-import { vars } from '@fai/ui-v2/primitive-theme'
-
-export const active = style({
-  transition: 'transform 50ms ease-in-out',
-
-  selectors: {
-    '&:active': {
-      backgroundColor: vars.colors.blue[7],
-    },
-  },
-})
-```
-
-this is to ensure all components synced with the apps theme
+아무래도 theme을 활용해야 하다보니 컴포넌트와 1대1로 스타일링 할때보다는 신경쓸게 많아졌지만
+경험상 theme의 진가는 세팅이 많이 되어있을 수록 개발을 이어서 할 사람이 스타일링에 대한 부담이 점점 적어져간다는 것이다.
+(물론 일관된 디자인을 하는 디자이너와 함께한다는 가정 하에서)
