@@ -13,13 +13,15 @@ export default function Resume() {
     <>
       <article className="mt-24 lg:mt-20">
         <h1
-          className={`text-4xl font-extrabold leading-snug tracking-tight lg:text-6xl lg:leading-snug ${gradientText}`}>
+          className={`text-4xl font-extrabold leading-snug tracking-tight lg:text-6xl lg:leading-snug ${gradientText}`}
+        >
           안녕하세요.
           <br />
           이시윤입니다
         </h1>
         <ul
-          className={`mt-14 text-base font-semibold tracking-tight text-stone-500 lg:text-xl ${discList}`}>
+          className={`mt-14 text-base font-semibold tracking-tight text-stone-500 lg:text-xl ${discList}`}
+        >
           <li className={`${discPosition}`}>주어진 작업의 의도를 중요하게 생각합니다.</li>
           <li className={`${discPosition}`}>
             UI, UX에 대해 이야기하고 개선하는 과정을 좋아합니다.
@@ -33,7 +35,8 @@ export default function Resume() {
       <section className="mt-14">
         <h2 className={`${subTitle}`}>기술 및 역량 요약</h2>
         <ul
-          className={`mt-4 text-base font-light tracking-tight text-stone-600 lg:text-xl ${discList}`}>
+          className={`mt-4 text-base font-light tracking-tight text-stone-600 lg:text-xl ${discList}`}
+        >
           <li className={`leading-snug ${discPosition}`}>
             <strong className={`${strongStyle}`}>Javascript ES6+</strong>와
             <strong className={`${strongStyle}`}> Typescript</strong>에 익숙합니다
@@ -128,7 +131,7 @@ export default function Resume() {
           <li>
             <p className="mb-4 text-stone-600">
               리액트 기반의 pixel editor인 <strong className={`${strongStyle}`}>dotting</strong>의
-              <wb /> contributor로 활동하고 있습니다
+              contributor로 활동하고 있습니다
             </p>
             <div className="flex gap-3">
               <Link href="https://github.com/hunkim98/dotting">
