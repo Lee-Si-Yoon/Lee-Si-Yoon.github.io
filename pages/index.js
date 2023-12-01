@@ -35,7 +35,13 @@ export default function Home({ posts }) {
                     </dd>
                   </dl> */}
                   <div className="hidden lg:col-span-1 lg:flex lg:items-center">
-                    <Image alt={images[0] ?? ''} src={images[0] ?? ''} width={1980} height={1080} />
+                    <Image
+                      alt={images[0] ?? 'avatar.png'}
+                      src={images[0] ?? '/static/images/avatar.png'}
+                      width={1980}
+                      height={1080}
+                      onerror="this.onerror=null;this.src='/static/images/avatar.png';"
+                    />
                   </div>
                   <div className="space-y-5 lg:col-span-2">
                     <div className="space-y-6">
