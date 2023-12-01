@@ -1,15 +1,15 @@
-const defaultTheme = require('tailwindcss/defaultTheme')
+// @ts-check
+const { fontFamily } = require('tailwindcss/defaultTheme')
 const colors = require('tailwindcss/colors')
 
+/** @type {import("tailwindcss/types").Config } */
 module.exports = {
-  experimental: {
-    optimizeUniversalDefaults: true,
-  },
   content: [
-    './pages/**/*.js',
-    './components/**/*.js',
-    './layouts/**/*.js',
-    './lib/**/*.js',
+    './node_modules/pliny/**/*.js',
+    './app/**/*.{js,ts,jsx,tsx}',
+    './pages/**/*.{js,ts,tsx}',
+    './components/**/*.{js,ts,tsx}',
+    './layouts/**/*.{js,ts,tsx}',
     './data/**/*.mdx',
   ],
   darkMode: 'class',
@@ -25,20 +25,19 @@ module.exports = {
         14: '3.5rem',
       },
       fontFamily: {
-        sans: ['Pretendard', ...defaultTheme.fontFamily.sans],
+        sans: ['Pretendard', 'var(--font-space-grotesk)', ...fontFamily.sans],
       },
       colors: {
         primary: colors.sky,
         gray: colors.stone,
       },
-      typography: (theme) => ({
+      typography: ({ theme }) => ({
         DEFAULT: {
           css: {
-            color: theme('colors.gray.700'),
             a: {
-              color: theme('colors.primary.600'),
+              color: theme('colors.primary.500'),
               '&:hover': {
-                color: `${theme('colors.primary.700')} !important`,
+                color: `${theme('colors.primary.600')}`,
               },
               code: { color: theme('colors.primary.400') },
             },
@@ -100,13 +99,12 @@ module.exports = {
             },
           },
         },
-        dark: {
+        invert: {
           css: {
-            color: theme('colors.gray.300'),
             a: {
               color: theme('colors.primary.500'),
               '&:hover': {
-                color: `${theme('colors.primary.400')} !important`,
+                color: `${theme('colors.primary.400')}`,
               },
               code: { color: theme('colors.primary.400') },
             },
@@ -118,7 +116,6 @@ module.exports = {
             h2: {
               fontWeight: '700',
               letterSpacing: theme('letterSpacing.tight'),
-              color: theme('colors.gray.100'),
             },
             h3: {
               fontWeight: '600',
@@ -166,6 +163,3 @@ module.exports = {
   },
   plugins: [require('@tailwindcss/forms'), require('@tailwindcss/typography')],
 }
-
-// 러버덕 디버깅
-// KISS Keep it stupid
