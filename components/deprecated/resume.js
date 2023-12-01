@@ -1,3 +1,5 @@
+import Link from '@/components/Link'
+
 const gradientText = 'bg-gradient-to-b from-sky-300 to-sky-600 bg-clip-text text-transparent'
 const discList = 'pl-1 list-inside list-disc marker:text-xl marker:text-stone-200'
 const discPosition = 'before:mr-[-0.5rem] mb-1 lg:mb-2'
