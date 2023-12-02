@@ -76,6 +76,9 @@ module.exports = {
             'code::after': {
               content: 'none',
             },
+            mark: {
+              backgroundColor: theme('colors.primary.400'),
+            },
             details: {
               backgroundColor: theme('colors.gray.100'),
               paddingLeft: '4px',
@@ -92,7 +95,7 @@ module.exports = {
             'ul li::marker': {
               backgroundColor: theme('colors.gray.500'),
             },
-            strong: { color: theme('colors.gray.600') },
+            strong: { color: theme('colors.gray.900') },
             blockquote: {
               color: theme('colors.gray.900'),
               borderLeftColor: theme('colors.gray.200'),
@@ -102,27 +105,28 @@ module.exports = {
         invert: {
           css: {
             a: {
-              color: theme('colors.primary.500'),
+              color: theme('colors.primary.400'),
               '&:hover': {
-                color: `${theme('colors.primary.400')}`,
+                color: `${theme('colors.primary.300')}`,
               },
-              code: { color: theme('colors.primary.400') },
+              code: { color: theme('colors.primary.300') },
             },
             h1: {
               fontWeight: '700',
               letterSpacing: theme('letterSpacing.tight'),
-              color: theme('colors.gray.100'),
+              color: theme('colors.gray.200'),
             },
             h2: {
               fontWeight: '700',
               letterSpacing: theme('letterSpacing.tight'),
+              color: theme('colors.gray.200'),
             },
             h3: {
               fontWeight: '600',
-              color: theme('colors.gray.100'),
+              color: theme('colors.gray.200'),
             },
             'h4,h5,h6': {
-              color: theme('colors.gray.100'),
+              color: theme('colors.gray.200'),
             },
             pre: {
               backgroundColor: theme('colors.gray.800'),
@@ -155,6 +159,9 @@ module.exports = {
             blockquote: {
               color: theme('colors.gray.100'),
               borderLeftColor: theme('colors.gray.700'),
+            },
+            mark: {
+              backgroundColor: theme('colors.primary.500'),
             },
           },
         },
