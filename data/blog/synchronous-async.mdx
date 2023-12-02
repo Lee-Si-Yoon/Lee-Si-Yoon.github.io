@@ -1,0 +1,101 @@
+---
+title: 동기와 비동기
+date: '2023-12-04'
+tags: ['CS']
+draft: false
+summary: 뻔하지만 생각할 거리가 있는 이론
+images: ['/static/images/synchronous/relatively-time.jpeg']
+layout: PostSimple
+canonicalUrl:
+authors: ['default']
+---
+
+# {frontmatter.title}
+
+<TOCInline
+  toc={[
+    { value: '단어의 의미', url: '#단어의-의미', depth: 2 },
+    { value: '유의어와 비교', url: '#유의어와-비교', depth: 3 },
+    { value: '프로그래밍에서의 동기와 비동기', url: '#프로그래밍에서의-동기와-비동기', depth: 2 },
+    { value: '일상생활 예시', url: '#일상생활-예시', depth: 2 },
+    { value: '아직 이해못한 개념들', url: '#아직-이해못한-개념들', depth: 2 },
+    { value: '비고', url: '#비고', depth: 2 },
+  ]}
+  asDisclosure={true}
+/>
+
+## 단어의 의미
+
+- **Synchronous**: happening, existing, or arising at precisely the same time -> 동시에 일어나는 것
+- **Sync**: moving or happening at the same time and speed as someone or something else
+  -> 다른 대상과 맞춰서 일어나는 것
+- **chronous(접미사)** : (such) a time or period
+  -> 시간과 연관된 혹은 주기적인
+
+### 유의어와 비교
+
+- **simultaneous**: n개 이상의 일이 같은 시간대에 일어난 것 + at the same instant 어느 한 시간대에
+- **synchronous**: 같은 속도나 같은 빈도를 가진 n개 이상의 일이, 즉 동기화된 것들이 같이 일어난 것 → 서로 관계된 두개 이상의 것들이 동시에 일어난 것 + over a short period
+- **asynchronous**: 서로 관계된 두개 이상의 것들이 동시에 진행되지 않는 것 + not in the same timeline
+- **metachronous**: 서로 연관된 일이 일어난 것 + at different time
+- **plesiochronous(유사 동기식)**: plesio : 가까운, 유사 + chronous → 어느 정도 오차를 허용하는 서로 관계된 두개 이상의 것들이 동시에 일어나는 것
+
+| 단어           | 동기화 | 시간 범위                |
+| -------------- | ------ | ------------------------ |
+| simultaneous   | X      | at the same instant      |
+| synchronous    | O      | over a short period      |
+| asynchronous   | X      | not in the same timeline |
+| metachronous   | O      | not in the same timeline |
+| plesiochronous | △      | over a short period      |
+
+- **serial**: 순차적으로 일어난 것 + over a period of time
+- **concurrent**: n개 이상의 일이 같은 시간대에 일어난 것 + over a period of time
+
+| 단어       | 순차적 | 시간 범위             |
+| ---------- | ------ | --------------------- |
+| serial     | O      | over a period of time |
+| concurrent | X      | over a period of time |
+
+## 프로그래밍에서의 동기와 비동기
+
+| ![sync](/static/images/synchronous/synchronous-chart.png) | ![async](/static/images/synchronous/async-chart.png) |
+| --------------------------------------------------------- | ---------------------------------------------------- |
+
+- A,B,C 3개를 요청했는데 요청한 순서대로 A-B-C로 응답이 오면 sync,
+  반대로 응답에 순서를 모르겠으면 Async
+- sync는 요청과 응답이 동시에 발생, 즉 요청 한대로 응답이 온다
+- async는 요청과 응답이 별개로 발생, 요청 한대로 응답이 안올 수도 있다
+
+요청을 하는 단일 작업 대한 이야기, 복수의 작업에 대한 이야기가 아님. 왜냐하면 복수의 작업은 병렬처리에 관한 이야기고
+그리고 요청과 응답이 동시에 발생한다는 것은 주관적인 해석인데 async는 요청을 해두고 응답을 기다리지 않고 나머지 작업
+하니 요청과 응답이 하나의 시간선에서 별개로 존재한다고 볼 수 있고, 동기는 하나의 시간선에서 요청 후 응답까지 기다려야 하니
+비동기와 비교해서 보면 상대적 시간은 멈춰있지 않나라는 생각이 들었다.
+
+```
+동기
+- A요청 x x x A응답 - -
+
+비동기
+- A요청 - - - A응답 - -
+```
+
+위 예시에서 비동기는 A요청부터 응답까지의 빈 시간이 유의미한 시간이었고(다른 일을 했을테니)
+동기는 A요청부터 응답까지 그냥 없는 시간인 셈이다
+
+- blocking과 non-blocking은 요청을 받은 쪽에서 처리가 끝나기 전에 리턴해주는가
+
+## 일상생활 예시
+
+- sync + blocking, 볼펜으로 획을 그어서 검은색 선이 종이에 나타났다 → 손을떼면 선이 더 안그어짐
+- sync + non-blocking, 로딩창이 계속 몇퍼센트인지 물어본다 → 로딩이 끝날때까지 유의미한 응답은 없지만 게임 시작을 누른 내가 다른 걸 못하는건 아님
+- async + non-blocking, 택배를 시킴 -> 택배 올때까지 난 할일 하면됨
+- async + blocking, 사실 뭐에 붙여야 할지 모르겠다. 일상에서 가능한 형태이긴 한가?
+
+## 아직 이해못한 개념들
+
+- **isochronous(등시성)**: iso : 단일, 같은 + chronous → 같은 시간 동안 진행 혹은 같은 빈도로 진행, 데이터 통신에서는 동기/비동기가 모두 가능함을 나타냄(why?)
+- **anisochronous(비등시성)**: an : not + iso : 단일 + chronous → 같은 시간 동안 진행 혹은 같은 빈도로 진행되지 않아도 되는 것
+
+## 비고
+
+- [IBM 글](https://developer.ibm.com/articles/l-async/)
