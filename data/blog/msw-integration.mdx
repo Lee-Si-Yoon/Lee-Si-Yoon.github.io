@@ -1,0 +1,229 @@
+---
+title: FE팀 독립전쟁 - MSW 편
+date: '2023-12-01'
+tags: ['MSW']
+draft: false
+summary: BE팀 여러분 존경합니다
+images: ['/static/images/banners/medusa-raft.jpeg']
+layout: PostSimple
+canonicalUrl:
+authors: ['default']
+---
+
+# {frontmatter.title}
+
+<TOCInline
+  toc={[
+    { value: 'TLDR', url: '#tldr', depth: 2 },
+    { value: 'mswjs/data', url: '#mswjs/data', depth: 2 },
+    { value: 'msw 미세 팁', url: '#msw-미세-팁', depth: 2 },
+  ]}
+  asDisclosure={true}
+/>
+
+## TLDR
+
+FE는 원래부터 BE 기다리지 않고 가상의 mock data를 json이나 js파일로 만들어두고 개발은 가능하다.
+
+1. 하지만 프로젝트의 몸집이 커지면서 곳곳에 숨겨진 mock.json, mock.js들을 훑어보니 이렇게 난장판이 따로 없다.
+   예전에 이미 작성한 같은 mock파일이 있음에도 못찾아서 똑같이 다시 쓰고 있거나 등...
+2. MSW의 가치 중 하나는 서버의 응답을 간단하게 갈아끼우면서 컴포넌트를 테스트하는데 있다
+3. 그리고 그 간단히 갈아끼우는게 다음에 작성할 글(QA편)과 연관이 되는데...
+
+## mswjs/data
+
+MSW이 무엇이고 그것의 작동원리는 다른 블로그들에 아주 상세히 적혀져 있어서 패스하고
+
+TLDR에서 언급한 첫번째 문제 수도관에 끼는 슬러지처럼 구석구석 생겨나는 mock 연관된 파일들을
+일원화 시키는 것을 중점으로 이 글을 시작하겠다.
+
+[mswjs/data](https://github.com/mswjs/data)라는 패키지가 있다 MSW를 만든 mswjs의 패키지 중 하나로
+msw와 호환이 되는데
+
+사용법을 살펴보면
+
+```ts:db.ts
+import { faker } from '@faker-js/faker';
+import { factory, primaryKey } from '@mswjs/data';
+
+export const SEEDNUMBER = 123;
+
+// Seed 'faker' to ensure reproducible random values
+faker.seed(SEEDNUMBER);
+
+export const db = factory({
+  mock: {
+    id: primaryKey(faker.string.uuid),
+    name: String,
+    sentences: String,
+  },
+});
+
+// create 1 instance
+db.mock.create({
+  id: '1',
+  name: faker.animal.bear(),
+  sentences: faker.lorem.sentence(),
+});
+```
+
+db라는 스키마를 정의해두고
+해당 스키마를 통해서 데이터를 CRUD 할 수 있는 일종의 유사 BFF이다.
+
+문법 자체는 널려있는 ORM과 비슷하게 create, findFirst, count, getAll, update, delete 등이 있다
+
+그 중 눈에 띄는 메서드는 [`toHandlers`](https://github.com/mswjs/data#tohandlers)인데
+rest 혹은 grpahql 둘 중 하나를 골라 MSW의 handler를 만들어주는 일종의 어댑터이다
+
+하지만 우리는 mock 데이터 일원화 그리고 응답 갈아끼우기가 주 목적이니 저걸 사용하지는 않고
+
+```ts:handlers.ts
+import { gql } from '@apollo/client';
+import { faker } from '@faker-js/faker';
+import { graphql, HttpResponse, http } from 'msw';
+
+import { db, SEEDNUMBER } from './db';
+
+// Seed 'faker' to ensure reproducible random values
+faker.seed(SEEDNUMBER);
+
+export const fakeQueryDocument = gql`
+  query Faker {
+    mock {
+      id
+      name
+      sentences
+    }
+  }
+`;
+
+const gqlFakeQuery = graphql.query('Faker', ({ variables }) => {
+  const { id } = variables;
+
+  const da = db.mock.findFirst({
+    where: { id: { equals: id } },
+  });
+
+  if (da === undefined) {
+    return HttpResponse.json({
+      errors: [{ message: 'Cannot find Faker' }],
+    });
+  }
+
+  return HttpResponse.json({
+    data: {
+      id: da?.id,
+      name: da?.name,
+      sentences: da?.sentences,
+    },
+  });
+});
+
+const restFakeQuery = http.get('/mocks/:id', ({ params }) => {
+  const item = db.mock.findFirst({
+    where: { id: { equals: params.id.toString() } },
+  });
+
+  if (!item) {
+    return HttpResponse.json(null, { status: 404 });
+  }
+
+  return HttpResponse.json(item, { status: 200 });
+});
+
+export const handlers = [gqlFakeQuery, restFakeQuery];
+```
+
+와 같이 간단하게 쿼리문을 직접 작성할 수 있게 된다.
+rest일때는 status code를 넣을 수 있고
+graphql은 status code를 사용하지 않고 error 객체를 줄 수가 있다
+
+이제 만들어진 handler를
+
+```ts:enableMocking.ts
+export async function enableMocking() {
+  // vite의 환경변수, dev일때만 실행하도록
+  if (import.meta.env.PROD === true) {
+    return;
+  }
+
+  const { worker } = await import('../mocks/browser');
+
+  // `worker.start()` returns a Promise that resolves
+  // once the Service Worker is up and ready to intercept requests.
+  worker.start();
+}
+```
+
+으로 만들어서 `main.tsx`에서 실행 해주면 msw가 활성화되고
+
+```tsx:page.tsx
+import { useQuery } from '@apollo/client';
+import { useQuery as RQ } from 'react-query';
+
+import { fakeQueryDocument } from '../../../mocks/handlers';
+
+export default function Page() {
+  const { data: gqlMockData, loading: gqlMockLoading } = useQuery(
+    fakeQueryDocument,
+    {
+      variables: { id: '1' },
+    }
+  );
+  const { data: restMockData, isLoading: restMockLoading } = RQ({
+    queryKey: ['Faker'],
+    queryFn: async () => fetch('/mocks/1').then((res) => res.json()),
+  });
+
+  if (import.meta.env.DEV && (gqlMockLoading || restMockLoading))
+    return 'loading';
+
+  return (
+    <>
+      <span>{gqlMockData.name ?? '-'}</span>
+      <span>{restMockData.name ?? '-'}</span>
+    </>
+  )
+}
+```
+
+와 같이 만들어둔 handler를 소비해줄 수 있다
+
+데이터를 실제로 db에 저장할 필요만 없다면 왠만한 서비스는 실제로 동작하는 것처럼 만들 수 있을 것 같다.
+
+## msw 미세 팁
+
+아무것도 없이 MSW을 처음 설치해본 사람들은 아주 난잡한 warning을 콘솔에서 볼 수 있다
+
+<Image src="/static/images/msw-integration/msw-integration-1.png" />
+
+이것들을 whitelist화 시킬 수 있는 방법이 존재하는데
+
+```ts:enableMocking.ts
+const ignoredPathnames = [
+  '.webp',
+  '.jpeg',
+  'chrome-extension',
+  'favicon/',
+];
+
+export async function enableMocking() {
+  if (import.meta.env.PROD === true) {
+    return;
+  }
+
+  const { worker } = await import('../mocks/browser');
+
+  worker.start({
+    onUnhandledRequest(req, print) {
+      if (ignoredPathnames.some((pathname) => req.url.includes(pathname))) {
+        return;
+      }
+
+      print.warning();
+    },
+  });
+}
+```
+
+와 같이 [onUnhandledRequest](https://mswjs.io/docs/api/setup-server/listen/#onunhandledrequest)을 이용해서 저 warning들을 지워줄 수 있다
