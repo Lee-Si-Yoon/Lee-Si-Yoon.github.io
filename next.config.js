@@ -65,7 +65,6 @@ module.exports = () => {
     eslint: {
       dirs: ['app', 'components', 'layouts', 'scripts'],
     },
-    basePath: '/Lee-Si-Yoon.github.io',
     output: 'export',
     images: {
       remotePatterns: [
